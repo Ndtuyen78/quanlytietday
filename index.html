@@ -1962,6 +1962,7 @@ function renderDKRows(dateF, gvF, lopF) {
       <td>${r.LoaiPhong||''}</td><td>${r.SuDungThietBi||''}</td>
       <td style="white-space:nowrap">
         <button class="btn btn-secondary btn-sm" onclick="editDK(${data.indexOf(r)})">✏️ Sửa</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSingleDK(${data.indexOf(r)})">🗑️</button>
       </td>
     </tr>`).join('')}
   </table></div>
@@ -2029,6 +2030,48 @@ async function deleteCheckedDK() {
   }
   showToast('Đã xóa ' + ok + ' đăng ký!', 'success');
   loadDKTable();
+}
+
+async function deleteSingleDK(idx) {
+  const data = allData.DangKy || [];
+  const r = data[idx];
+  if (!r) return;
+
+  if (!confirm('Xóa đăng ký: Tiết ' + r.TietDay + ' - ' + r.LopHoc + ' - ' + r.NgayDay + '?')) return;
+
+  // Nếu là GV, kiểm tra đã xếp phòng chưa
+  if (!isAdmin) {
+    showLoading('Đang kiểm tra...');
+    const xpData = await readXepPhongSheet(true);
+    hideLoading();
+    const xpMatch = xpData.find(x =>
+      String(x.CoSo||'').trim() === String(r.CoSo||'').trim() &&
+      normDateGlobal(x.NgayDay) === normDateGlobal(r.NgayDay) &&
+      String(x.TietDay||'').trim() === String(r.TietDay||'').trim() &&
+      String(x.LopHoc||'').trim() === String(r.LopHoc||'').trim() &&
+      x.PhongDuocXep && x.PhongDuocXep.trim()
+    );
+    if (xpMatch) {
+      showModal(
+        '<div class="modal-title">❌ Không thể xóa</div>' +
+        '<p style="margin-bottom:12px">Tiết này đã được Admin xếp phòng <b>' + xpMatch.PhongDuocXep + '</b>.</p>' +
+        '<p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px">Vui lòng liên hệ Admin để hủy xếp phòng trước khi xóa.</p>' +
+        '<div class="btn-group"><button class="btn btn-secondary" onclick="closeModal()">Đóng</button></div>'
+      );
+      return;
+    }
+  }
+
+  try {
+    showLoading('Đang xóa...');
+    await updateRow('DangKy', r._rowIndex, Array(15).fill(''));
+    hideLoading();
+    showToast('Đã xóa đăng ký!', 'success');
+    await loadDKTable();
+  } catch(e) {
+    hideLoading();
+    showToast('Lỗi xóa dữ liệu!', 'error');
+  }
 }
 
 async function editDK(idx) {
@@ -2420,3 +2463,4 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
