@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng Ký Tiết Dạy</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a56db;
+    --primary-dark: #1040b0;
+    --primary-light: #e8efff;
+    --accent: #f59e0b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --border: #d1d9f0;
+    --text: #1e2a4a;
+    --text-muted: #6b7a9e;
+    --shadow: 0 4px 24px rgba(26,86,219,0.10);
+    --radius: 14px;
+    --font: 'Be Vietnam Pro', sans-serif;
+    --font-head: 'Lexend', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  /* HEADER */
+  .app-header {
+    background: linear-gradient(135deg, #1a56db 0%, #2563eb 60%, #3b82f6 100%);
+    color: #fff;
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 16px rgba(26,86,219,0.18);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .app-header h1 {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .header-user {
+    font-size: 0.82rem;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logout-btn {
+    background: rgba(255,255,255,0.18);
+    border: none;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: var(--font);
+    transition: background 0.2s;
+  }
+  .logout-btn:hover { background: rgba(255,255,255,0.3); }
+
+  /* LOGIN */
+  #loginScreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 60px);
+    padding: 24px;
+  }
+  .login-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .login-card h2 {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    color: var(--primary);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .login-card p {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin-bottom: 28px;
+  }
+
+  /* TABS */
+  #appScreen { display: none; }
+  .tab-nav {
+    background: var(--card);
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 12px;
+    gap: 2px;
+    position: sticky;
+    top: 60px;
+    z-index: 90;
+    box-shadow: 0 2px 8px rgba(26,86,219,0.06);
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    padding: 14px 18px;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--primary); }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
+  }
+  .tab-content { display: none; padding: 24px 16px; max-width: 900px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .card-title {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--primary);
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  /* FORM */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row.single { grid-template-columns: 1fr; }
+  @media (max-width: 580px) { .form-row { grid-template-columns: 1fr; } }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.2px;
+  }
+  .form-label .req { color: var(--danger); margin-left: 2px; }
+  .form-control {
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    font-family: var(--font);
+    font-size: 0.9rem;
+    color: var(--text);
+    background: #f8faff;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+  .form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26,86,219,0.10);
+    background: #fff;
+  }
+  select.form-control { cursor: pointer; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 22px;
+    border-radius: 9px;
+    border: none;
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,86,219,0.22); }
+  .btn-secondary { background: var(--primary-light); color: var(--primary); }
+  .btn-secondary:hover { background: #d0dcff; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #0da271; }
+  .btn-danger { background: #fee2e2; color: var(--danger); }
+  .btn-danger:hover { background: #fecaca; }
+  .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+    padding: 11px 13px;
+    text-align: left;
+    white-space: nowrap;
+    font-size: 0.8rem;
+  }
+  td { padding: 10px 13px; border-top: 1px solid var(--border); vertical-align: middle; }
+  tr:hover td { background: #f5f8ff; }
+  tr.selected td { background: #e8efff; }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge-blue { background: var(--primary-light); color: var(--primary); }
+  .badge-green { background: #d1fae5; color: #065f46; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    z-index: 9999;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    max-width: 90vw;
+    text-align: center;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.success { background: var(--success); }
+  #toast.error { background: var(--danger); }
+
+  /* LOADING */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(255,255,255,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9998; backdrop-filter: blur(2px);
+  }
+  .loading-box {
+    background: #fff; border-radius: 14px;
+    padding: 24px 36px; text-align: center;
+    box-shadow: 0 8px 32px rgba(26,86,219,0.15);
+    border: 1px solid var(--border);
+  }
+  .loading-box .spin-lg {
+    width: 36px; height: 36px;
+    border: 3px solid var(--primary-light);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  .loading-box p { color: var(--text); font-weight: 500; font-size: 0.9rem; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 36px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+  /* XEPPHONG TABLE */
+  .xp-table-wrap { overflow-x: auto; }
+  .xp-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .xp-table th { background: #1a56db; color: #fff; padding: 10px 10px; white-space: nowrap; }
+  .xp-table td { padding: 8px 10px; border: 1px solid var(--border); vertical-align: middle; }
+  .xp-table tr:nth-child(even) td { background: #f5f8ff; }
+
+  /* BAOCAO */
+  .bc-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #bbb; }
+  .bc-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  .bc-table th { background: #1a56db; color: #fff; padding: 10px 12px; text-align: center; border: 1px solid #1040b0; }
+  .bc-table td { padding: 9px 12px; border: 1px solid #d1d9f0; text-align: center; }
+  .bc-table tr:nth-child(even) td { background: #f0f4ff; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 520px;
+    width: 95%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  }
+  .modal-title {
+    font-family: var(--font-head);
+    font-size: 1.05rem;
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+
+  /* DATE FILTER */
+  .filter-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-row .form-group { min-width: 160px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .card { padding: 16px; }
+    .tab-btn { padding: 12px 12px; font-size: 0.8rem; }
+    .btn { padding: 9px 16px; font-size: 0.84rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>📚 Quản Lý Tiết Dạy</h1>
+  <div class="header-user" id="headerUser" style="display:none">
+    <span id="headerName"></span>
+    <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>Đăng Nhập</h2>
+    <p>Nhập Mã GV hoặc Email để tiếp tục</p>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Mã GV hoặc Email <span class="req">*</span></label>
+      <input type="text" id="loginInput" class="form-control" placeholder="Nhập mã GV hoặc email...">
+    </div>
+    <div class="form-group" style="margin-bottom:20px">
+      <label class="form-label">Nếu là Admin, nhập mã Admin</label>
+      <input type="password" id="adminInput" class="form-control" placeholder="Để trống nếu là giáo viên">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">
+      Đăng Nhập
+    </button>
+    <div id="loginError" style="color:var(--danger);font-size:0.85rem;margin-top:12px;text-align:center;display:none"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen">
+  <div class="tab-nav" id="tabNav"></div>
+  <div id="tabContents"></div>
+</div>
+
+<div id="toast"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script>
+// ==================== CONFIG ====================
+const API = 'https://script.google.com/macros/s/AKfycbw39l8El-HMJq690dalL1pxChDylGEz2P8vawrFIm3jiHGMtCjArITke0MBwFDo9PRH/exec';
+
+let isAdmin = false;
+let currentUser = null; // {MaGV, HoTen, ToBomon, Email}
+let allData = {}; // cache
+
+// ==================== API (JSONP - bypass CORS) ====================
+let _cbCount = 0;
+
+// Cache: lưu kết quả đọc sheet, tránh gọi lại API không cần thiết
+const _cache = {};
+const _CACHE_TTL = 30000; // 30 giây
+
+function _cacheKey(sheet) { return 'sheet_' + sheet; }
+
+function _invalidateCache(sheet) {
+  delete _cache[_cacheKey(sheet)];
+}
+
+function apiCall(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__gs_cb_' + (++_cbCount);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      const script = document.getElementById(cbName + '_script');
+      if (script) script.remove();
+      reject(new Error('Timeout sau 20 giây - kiểm tra kết nối'));
+    }, 20000);
+
+    window[cbName] = function(data) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      const script = document.getElementById(cbName + '_script');
+      if (script) script.remove();
+      resolve(data);
+    };
+
+    params.callback = cbName;
+    const url = API + '?' + new URLSearchParams(params);
+    const script = document.createElement('script');
+    script.id = cbName + '_script';
+    script.src = url;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+      reject(new Error('Lỗi mạng - kiểm tra kết nối internet'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// Đọc sheet với cache
+async function apiRead(sheet, forceRefresh = false) {
+  const key = _cacheKey(sheet);
+  const now = Date.now();
+  // Dùng cache nếu còn hạn
+  if (!forceRefresh && _cache[key] && (now - _cache[key].ts) < _CACHE_TTL) {
+    return _cache[key].data;
+  }
+  const r = await apiCall({ action: 'read', sheet });
+  if (!r.success) return null;
+  _cache[key] = { data: r, ts: now };
+  return r;
+}
+
+// Đọc nhiều sheet cùng 1 request - nhanh hơn 3-4 lần
+async function readBatch(sheets, forceRefresh = false) {
+  const now = Date.now();
+  const result = {};
+  const toFetch = [];
+
+  // Kiểm tra cache từng sheet
+  sheets.forEach(sheet => {
+    const key = _cacheKey(sheet);
+    if (!forceRefresh && _cache[key] && (now - _cache[key].ts) < _CACHE_TTL) {
+      result[sheet] = _cache[key].data; // dùng cache
+    } else {
+      toFetch.push(sheet); // cần fetch
+    }
+  });
+
+  // Fetch các sheet chưa có cache trong 1 request
+  if (toFetch.length > 0) {
+    const r = await apiCall({ action: 'readBatch', sheets: toFetch.join(',') });
+    if (r.success) {
+      toFetch.forEach(sheet => {
+        const sheetData = r.data[sheet] || { success: false, data: [] };
+        _cache[_cacheKey(sheet)] = { data: sheetData, ts: now };
+        result[sheet] = sheetData;
+      });
+    }
+  }
+  return result;
+}
+
+async function readSheet(sheet, forceRefresh = false) {
+  const r = await apiRead(sheet, forceRefresh);
+  if (!r || !r.data || r.data.length < 2) return [];
+  const headers = r.data[0];
+  return r.data.slice(1).map((row, idx) => {
+    const obj = { _rowIndex: idx + 2 };
+    headers.forEach((h, i) => obj[h] = row[i] ?? '');
+    return obj;
+  }).filter(r => Object.values(r).some((v,i) => i > 0 && v !== ''));
+}
+
+// Đọc nhiều sheet cùng 1 request - nhanh hơn 3-4x
+async function batchRead(sheets, forceRefresh = false) {
+  // Đọc song song tất cả sheets
+  const results = await Promise.all(sheets.map(s => apiRead(s, forceRefresh)));
+  const out = {};
+  sheets.forEach((s, i) => out[s] = results[i]);
+  return out;
+}
+
+async function appendRow(sheet, row) {
+  _invalidateCache(sheet); // Xóa cache sau khi thêm
+  const r = await apiCall({ action: 'append', sheet, row: JSON.stringify(row) });
+  return r;
+}
+
+async function updateRow(sheet, rowIndex, row) {
+  _invalidateCache(sheet); // Xóa cache sau khi sửa
+  return apiCall({ action: 'update', sheet, rowIndex, row: JSON.stringify(row) });
+}
+
+// ==================== LOADING OVERLAY ====================
+let _loadingCount = 0;
+function showLoading(msg = 'Đang tải...') {
+  _loadingCount++;
+  let el = document.getElementById('loadingOverlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loadingOverlay';
+    el.className = 'loading-overlay';
+    el.innerHTML = '<div class="loading-box"><div class="spin-lg"></div><p id="loadingMsg">' + msg + '</p></div>';
+    document.body.appendChild(el);
+  } else {
+    document.getElementById('loadingMsg').textContent = msg;
+    el.style.display = 'flex';
+  }
+}
+function hideLoading() {
+  _loadingCount = Math.max(0, _loadingCount - 1);
+  if (_loadingCount === 0) {
+    const el = document.getElementById('loadingOverlay');
+    if (el) el.style.display = 'none';
+  }
+}
+
+// ==================== TOAST ====================
+let toastTimer;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type ? `show ${type}` : 'show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 3000);
+}
+
+// ==================== MODAL ====================
+function showModal(html) {
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ==================== LOGIN ====================
+async function doLogin() {
+  const input = document.getElementById('loginInput').value.trim();
+  const adminCode = document.getElementById('adminInput').value.trim();
+  const errEl = document.getElementById('loginError');
+  const loginBtn = document.querySelector('#loginScreen .btn-primary');
+  errEl.style.display = 'none';
+
+  if (!input) { errEl.textContent = 'Vui lòng nhập Mã GV hoặc Email'; errEl.style.display = 'block'; return; }
+
+  // Disable nút tránh bấm nhiều lần
+  if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = '⏳ Đang kết nối...'; }
+
+  const resetBtn = () => { if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Đăng Nhập'; } };
+
+  // Hàm gọi API có timeout 15s
+  const apiCallWithTimeout = (params) => {
+    return Promise.race([
+      apiCall(params),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout - Apps Script không phản hồi sau 15 giây')), 15000))
+    ]);
+  };
+
+  // Check admin
+  if (adminCode) {
+    try {
+      const r = await apiCallWithTimeout({ action: 'checkAdmin', code: adminCode });
+      if (r && r.isAdmin) {
+        isAdmin = true;
+        currentUser = { MaGV: 'ADMIN', HoTen: 'Quản trị viên', ToBomon: '', Email: '' };
+        resetBtn();
+        initApp();
+        return;
+      } else {
+        errEl.textContent = 'Mã Admin không đúng (nhận: ' + JSON.stringify(r) + ')';
+        errEl.style.display = 'block';
+        resetBtn(); return;
+      }
+    } catch(e) {
+      errEl.innerHTML = '❌ Lỗi kết nối Apps Script:<br><b>' + e.message + '</b><br>' +
+        '<small>Kiểm tra: 1) Apps Script đã Deploy chưa? 2) Who has access = Anyone?</small>';
+      errEl.style.display = 'block';
+      resetBtn(); return;
+    }
+  }
+
+  // Check GV
+  try {
+    const gvList = await apiCallWithTimeout({ action: 'read', sheet: 'GiaoVien' });
+    
+    if (!gvList || !gvList.success) {
+      errEl.innerHTML = '❌ Không đọc được sheet GiaoVien.<br>' +
+        '<small>Lỗi: ' + (gvList?.error || 'Không rõ') + '</small>';
+      errEl.style.display = 'block';
+      resetBtn(); return;
+    }
+
+    if (!gvList.data || gvList.data.length < 2) {
+      errEl.textContent = 'Sheet GiaoVien chưa có dữ liệu. Vui lòng nhập GV trước.';
+      errEl.style.display = 'block';
+      resetBtn(); return;
+    }
+
+    // Parse raw data
+    const headers = gvList.data[0];
+    const rows = gvList.data.slice(1);
+    const iMaGV  = headers.findIndex(h => /magv/i.test(removeDiacritics(String(h))));
+    const iEmail = headers.findIndex(h => /email/i.test(String(h)));
+    const iHoTen = headers.findIndex(h => /hoten|ho ten/i.test(removeDiacritics(String(h))));
+    const iToBM  = headers.findIndex(h => /tobomon|to bo/i.test(removeDiacritics(String(h))));
+
+    const inputLower = input.toLowerCase().trim();
+    let foundRow = null;
+    for (const row of rows) {
+      const maGV  = String(row[iMaGV >= 0 ? iMaGV : 1] || '').trim().toLowerCase();
+      const email = String(row[iEmail >= 0 ? iEmail : 3] || '').trim().toLowerCase();
+      if (maGV === inputLower || (email && email === inputLower)) {
+        foundRow = row;
+        break;
+      }
+    }
+
+    if (!foundRow) {
+      const sample = rows.slice(0,3).map(r => String(r[iMaGV >= 0 ? iMaGV : 1]||'')).join(', ');
+      errEl.textContent = 'Không tìm thấy "' + input + '". Mã GV trong hệ thống (3 đầu): ' + sample;
+      errEl.style.display = 'block';
+      resetBtn(); return;
+    }
+
+    isAdmin = false;
+    currentUser = {
+      MaGV:    String(foundRow[iMaGV  >= 0 ? iMaGV  : 1] || '').trim(),
+      HoTen:   String(foundRow[iHoTen >= 0 ? iHoTen : 2] || '').trim(),
+      ToBomon: String(foundRow[iToBM  >= 0 ? iToBM  : 0] || '').trim(),
+      Email:   String(foundRow[iEmail >= 0 ? iEmail : 3] || '').trim(),
+    };
+    resetBtn();
+    initApp();
+  } catch(e) {
+    errEl.innerHTML = '❌ Lỗi: <b>' + e.message + '</b><br>' +
+      '<small>Thử lại hoặc kiểm tra Apps Script URL.</small>';
+    errEl.style.display = 'block';
+    resetBtn();
+  }
+}
+
+document.getElementById('loginInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function logout() {
+  isAdmin = false; currentUser = null; allData = {};
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('headerUser').style.display = 'none';
+  document.getElementById('loginInput').value = '';
+  document.getElementById('adminInput').value = '';
+}
+
+// ==================== INIT APP ====================
+function initApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  document.getElementById('headerUser').style.display = 'flex';
+  document.getElementById('headerName').textContent = currentUser.HoTen + (isAdmin ? ' 🔑' : '');
+
+  const tabs = isAdmin
+    ? [
+        { id: 'gv', label: '👩‍🏫 Giáo Viên' },
+        { id: 'coso', label: '🏫 Cơ Sở & Lớp' },
+        { id: 'phong', label: '🚪 Phòng' },
+        { id: 'monhoc', label: '📖 Môn Học' },
+        { id: 'dangky', label: '📝 Đăng Ký' },
+        { id: 'xepphong', label: '🗓️ Xếp Phòng' },
+        { id: 'baocao', label: '📊 Báo Cáo' },
+      ]
+    : [{ id: 'dangky', label: '📝 Đăng Ký Tiết Dạy' }];
+
+  const nav = document.getElementById('tabNav');
+  const contents = document.getElementById('tabContents');
+  nav.innerHTML = '';
+  contents.innerHTML = '';
+
+  tabs.forEach((tab, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = tab.label;
+    btn.onclick = () => switchTab(tab.id);
+    btn.id = 'tabBtn_' + tab.id;
+    nav.appendChild(btn);
+
+    const div = document.createElement('div');
+    div.className = 'tab-content' + (i === 0 ? ' active' : '');
+    div.id = 'tab_' + tab.id;
+    contents.appendChild(div);
+  });
+
+  // Render first tab
+  renderTab(tabs[0].id);
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tabBtn_' + id)?.classList.add('active');
+  const el = document.getElementById('tab_' + id);
+  if (el) { el.classList.add('active'); renderTab(id); }
+}
+
+function renderTab(id) {
+  if (id === 'gv') renderGV();
+  else if (id === 'coso') renderCoSo();
+  else if (id === 'phong') renderPhong();
+  else if (id === 'monhoc') renderMonHoc();
+  else if (id === 'dangky') renderDangKy();
+  else if (id === 'xepphong') renderXepPhong();
+  else if (id === 'baocao') renderBaoCao();
+}
+
+// ==================== FORMAT DATE ====================
+function toDisplayDate(d) {
+  if (!d) return '';
+  if (d instanceof Date) return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  return d;
+}
+function toInputDate(str) {
+  if (!str) return '';
+  if (str.includes('/')) { const [d,m,y] = str.split('/'); return `${y}-${m}-${d}`; }
+  return str;
+}
+function fromInputDate(str) {
+  if (!str) return '';
+  const [y,m,d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+function todayInput() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+}
+function getWeekRange(dateStr) {
+  // dateStr = yyyy-mm-dd, returns Mon-Sat of that week
+  const d = new Date(dateStr);
+  const day = d.getDay(); // 0=Sun
+  const mon = new Date(d);
+  mon.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  const dates = [];
+  for (let i = 0; i < 6; i++) {
+    const nd = new Date(mon);
+    nd.setDate(mon.getDate() + i);
+    dates.push(nd);
+  }
+  return dates;
+}
+
+// ==================== TAB GV ====================
+async function renderGV() {
+  const el = document.getElementById('tab_gv');
+  el.innerHTML = `<div class="card"><div class="empty-state"><div class="icon">⏳</div>Đang tải...</div></div>`;
+  const mhList = await readSheet('MonHoc');
+  allData.MonHoc = mhList;
+  const monOpts = mhList.map(m => `<option value="${m.TenMon}">${m.TenMon}</option>`).join('');
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">Thêm / Cập nhật Giáo Viên</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tổ bộ môn <span class="req">*</span></label>
+          <input type="text" id="gv_to" class="form-control" placeholder="Nhập tổ bộ môn">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mã GV <span class="req">*</span></label>
+          <input type="text" id="gv_ma" class="form-control" placeholder="Nhập mã GV">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Họ và tên <span class="req">*</span></label>
+          <input type="text" id="gv_ten" class="form-control" placeholder="Nhập họ và tên">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Môn học <span class="req">*</span></label>
+          <select id="gv_mon" class="form-control">
+            <option value="">-- Chọn môn học --</option>
+            ${monOpts}
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="gv_email" class="form-control" placeholder="Nhập email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Số điện thoại</label>
+          <input type="text" id="gv_sdt" class="form-control" placeholder="Nhập số điện thoại">
+        </div>
+      </div>
+      <input type="hidden" id="gv_editRow" value="">
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="saveGV()">💾 Lưu</button>
+        <button class="btn btn-secondary" onclick="clearGVForm()">↩ Làm mới</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Danh sách Giáo Viên</div>
+      <div id="gvTable"><div class="empty-state"><div class="icon">⏳</div>Đang tải...</div></div>
+    </div>`;
+  loadGVTable();
+}
+
+async function loadGVTable() {
+  const el = document.getElementById('gvTable');
+  if (!el) return;
+  const data = await readSheet('GiaoVien', true);
+  allData.GiaoVien = data;
+  if (!data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📋</div>Chưa có giáo viên nào</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <tr><th><input type="checkbox" id="gv_chkAll" onchange="toggleAllChk('gv_chk',this.checked)"></th>
+    <th>Tổ BM</th><th>Mã GV</th><th>Họ và tên</th><th>Môn học</th><th>Email</th><th>SĐT</th><th>Thao tác</th></tr>
+    ${data.map((gv,i) => `<tr id="gvRow_${i}">
+      <td><input type="checkbox" class="gv_chk" value="${i}"></td>
+      <td>${gv.ToBomon||''}</td><td>${gv.MaGV||''}</td><td>${gv.HoTen||''}</td>
+      <td><span class="badge badge-green">${gv.MonHoc||''}</span></td>
+      <td>${gv.Email||''}</td><td>${gv.SoDienThoai||''}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-secondary btn-sm" onclick="editGV(${i})">✏️ Sửa</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteGV(${i})">🗑️</button>
+      </td>
+    </tr>`).join('')}
+  </table></div>
+  <div class="btn-group" style="margin-top:12px">
+    <button class="btn btn-danger btn-sm" onclick="deleteCheckedGV()">🗑️ Xóa đã chọn</button>
+  </div>`;
+}
+
+function editGV(idx) {
+  const gv = allData.GiaoVien[idx];
+  document.getElementById('gv_to').value = gv.ToBomon || '';
+  document.getElementById('gv_ma').value = gv.MaGV || '';
+  document.getElementById('gv_ten').value = gv.HoTen || '';
+  document.getElementById('gv_mon').value = gv.MonHoc || '';
+  document.getElementById('gv_email').value = gv.Email || '';
+  document.getElementById('gv_sdt').value = gv.SoDienThoai || '';
+  document.getElementById('gv_editRow').value = gv._rowIndex;
+  window.scrollTo(0, 0);
+  showToast('Đang chỉnh sửa GV: ' + gv.HoTen);
+}
+
+async function saveGV() {
+  const to = document.getElementById('gv_to').value.trim();
+  const ma = document.getElementById('gv_ma').value.trim();
+  const ten = document.getElementById('gv_ten').value.trim();
+  const mon = document.getElementById('gv_mon').value;
+  const email = document.getElementById('gv_email').value.trim();
+  const sdt = document.getElementById('gv_sdt').value.trim();
+  const editRow = document.getElementById('gv_editRow').value;
+
+  if (!to || !ma || !ten || !mon) { showToast('Vui lòng nhập đủ thông tin bắt buộc!', 'error'); return; }
+
+  const row = [to, ma, ten, mon, email, sdt];
+  try {
+    if (editRow) {
+      await updateRow('GiaoVien', parseInt(editRow), row);
+      showToast('Cập nhật thành công!', 'success');
+    } else {
+      await appendRow('GiaoVien', row);
+      showToast('Đã lưu giáo viên!', 'success');
+    }
+    clearGVForm();
+    loadGVTable();
+  } catch(e) { showToast('Lỗi lưu dữ liệu!', 'error'); }
+}
+
+function clearGVForm() {
+  ['gv_to','gv_ma','gv_ten','gv_email','gv_sdt'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('gv_mon').value = '';
+  document.getElementById('gv_editRow').value = '';
+}
+
+async function deleteGV(idx) {
+  const gv = allData.GiaoVien[idx];
+  if (!confirm('Xóa GV: ' + gv.HoTen + '?')) return;
+  await updateRow('GiaoVien', gv._rowIndex, ['','','','','','']);
+  showToast('Đã xóa!', 'success'); loadGVTable();
+}
+async function deleteCheckedGV() {
+  const checked = [...document.querySelectorAll('.gv_chk:checked')].map(c => parseInt(c.value));
+  if (!checked.length) { showToast('Chọn ít nhất 1 dòng!', 'error'); return; }
+  if (!confirm('Xóa ' + checked.length + ' giáo viên đã chọn?')) return;
+  for (const idx of checked) await updateRow('GiaoVien', allData.GiaoVien[idx]._rowIndex, ['','','','','','']);
+  showToast('Đã xóa!', 'success'); loadGVTable();
+}
+
+// ==================== TAB CƠ SỞ ====================
+async function renderCoSo() {
+  const el = document.getElementById('tab_coso');
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">Thêm Cơ Sở & Lớp Học</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cơ sở <span class="req">*</span></label>
+          <select id="cs_coso" class="form-control">
+            <option value="">-- Chọn cơ sở --</option>
+            <option value="Cs TĐT">Cs TĐT</option>
+            <option value="Cs BVT">Cs BVT</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Khối <span class="req">*</span></label>
+          <select id="cs_khoi" class="form-control" onchange="onCSKhoiChange()">
+            <option value="">-- Chọn khối --</option>
+            ${[1,2,3,4,5,6,7,8,9,10,11,12].map(k=>`<option value="${k}">Khối ${k}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Lớp <span class="req">*</span></label>
+          <input type="text" id="cs_lop" class="form-control"
+            placeholder="VD: 10A1, 10A2 (không dấu)"
+            oninput="validateLopInput(this)"
+            style="text-transform:uppercase">
+          <div id="cs_lop_hint" style="font-size:0.78rem;color:var(--text-muted);margin-top:4px"></div>
+        </div>
+      </div>
+      <input type="hidden" id="cs_editRow" value="">
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="saveCoSo()">💾 Lưu</button>
+        <button class="btn btn-secondary" onclick="clearCSForm()">↩ Làm mới</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Danh sách Lớp Học</div>
+      <div id="csTable"><div class="empty-state"><div class="icon">⏳</div>Đang tải...</div></div>
+    </div>`;
+  loadCSTable();
+}
+
+async function loadCSTable() {
+  const el = document.getElementById('csTable');
+  if (!el) return;
+  const data = await readCoSoSheet(true);
+  allData.CoSo = data;
+
+  if (!data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🏫</div>Chưa có dữ liệu</div>';
+    return;
+  }
+
+  el.innerHTML = `<div class="table-wrap"><table>
+    <tr><th><input type="checkbox" id="cs_chkAll" onchange="toggleAllChk('cs_chk',this.checked)"></th><th>Cơ sở</th><th>Khối</th><th>Lớp</th><th>Thao tác</th></tr>
+    ${data.map((r,i) => `<tr id="csRow_${i}">
+      <td><input type="checkbox" class="cs_chk" value="${i}"></td>
+      <td><span class="badge badge-blue">${r.CoSo}</span></td>
+      <td>Khối ${r.Khoi}</td>
+      <td><b>${r.LopHoc}</b></td>
+      <td><button class="btn btn-secondary btn-sm" onclick="editCS(${i})">✏️ Sửa</button></td>
+    </tr>`).join('')}
+  </table></div>
+  <div class="btn-group" style="margin-top:12px">
+    <button class="btn btn-danger btn-sm" onclick="deleteCheckedCS()">🗑️ Xóa đã chọn</button>
+  </div>`;
+}
+
+function editCS(idx) {
+  const cs = allData.CoSo[idx];
+  document.getElementById('cs_coso').value = cs.CoSo || '';
+  document.getElementById('cs_khoi').value = cs.Khoi || '';
+  document.getElementById('cs_lop').value = cs.LopHoc || '';
+  document.getElementById('cs_editRow').value = cs._rowIndex;
+  const khoi = cs.Khoi || '';
+  const hint = document.getElementById('cs_lop_hint');
+  if (hint && khoi) hint.textContent = 'Nhập tiếp phần chữ và số. VD: ' + khoi + 'A1, ' + khoi + 'A2';
+  window.scrollTo(0, 0);
+  showToast('Đang chỉnh sửa lớp: ' + (cs.LopHoc || ''));
+}
+
+async function saveCoSo() {
+  const coso = document.getElementById('cs_coso').value;
+  const khoi = document.getElementById('cs_khoi').value;
+  const lop = document.getElementById('cs_lop').value.trim().toUpperCase();
+  if (!coso || !khoi || !lop) { showToast('Vui lòng chọn đầy đủ Cơ sở, Khối và Lớp!', 'error'); return; }
+
+  // Validate: không dấu, chỉ chứa chữ A-Z, số, không ký tự đặc biệt
+  const lopClean = removeDiacritics(lop);
+  if (lopClean !== lop) { showToast('Tên lớp không được có dấu! VD: 10A1, 6B2', 'error'); return; }
+  if (!/^[0-9]+[A-Z][0-9]+$/.test(lop)) { showToast('Sai định dạng! VD: 10A1, 6B2, 12C3', 'error'); return; }
+  if (!lop.startsWith(khoi)) { showToast('Tên lớp phải bắt đầu bằng số khối ' + khoi + '! VD: ' + khoi + 'A1', 'error'); return; }
+
+  const editRow = document.getElementById('cs_editRow').value;
+  const row = [coso, khoi, lop];
+  try {
+    if (editRow) { await updateRow('CoSo', parseInt(editRow), row); showToast('Cập nhật thành công!', 'success'); }
+    else { await appendRow('CoSo', row); showToast('Đã lưu lớp: ' + lop, 'success'); }
+    clearCSForm(); loadCSTable();
+  } catch(e) { showToast('Lỗi lưu dữ liệu!', 'error'); }
+}
+
+// Hàm bỏ dấu tiếng Việt
+function removeDiacritics(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, d => d === 'đ' ? 'd' : 'D');
+}
+
+// Parse raw sheet data thành array of objects (dùng cho GiaoVien, MonHoc, DangKy...)
+function parseSheetData(raw) {
+  if (!raw || !raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0];
+  return raw.data.slice(1)
+    .filter(row => row.some(v => String(v).trim() !== ''))
+    .map((row, idx) => {
+      const obj = { _rowIndex: idx + 2 };
+      headers.forEach((h, i) => obj[String(h).trim()] = row[i] ?? '');
+      return obj;
+    });
+}
+
+// Parse CoSo với tự detect cột
+async function parseCoSoData(raw) {
+  if (!raw || !raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0].map(h => removeDiacritics(String(h).trim()).toLowerCase());
+  function col(names, def) {
+    const idx = headers.findIndex(h => names.some(n => h.includes(n)));
+    return idx >= 0 ? idx : def;
+  }
+  const iCoSo = col(['coso'], 0);
+  const iKhoi = col(['khoi'], 1);
+  const iLop  = headers.findIndex(h => h.includes('lop') && !h.includes('loai'));
+  return raw.data.slice(1)
+    .filter(row => row.some(v => String(v).trim() !== ''))
+    .map((row, idx) => ({
+      _rowIndex: idx + 2,
+      CoSo:   String(row[iCoSo] ||'').trim(),
+      Khoi:   String(row[iKhoi] ||'').trim(),
+      LopHoc: String(row[iLop >= 0 ? iLop : 2] ||'').trim(),
+    }));
+}
+
+// Parse Phong với tự detect cột
+async function parsePhongData(raw) {
+  if (!raw || !raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0].map(h => removeDiacritics(String(h).trim()).toLowerCase());
+  function col(names, def) {
+    const idx = headers.findIndex(h => names.some(n => h.includes(n)));
+    return idx >= 0 ? idx : def;
+  }
+  const iCoSo  = col(['coso'], 0);
+  const iLoai  = col(['loai'], 1);
+  const iTen   = col(['ten'], 2);
+  return raw.data.slice(1)
+    .filter(row => row.some(v => String(v).trim() !== ''))
+    .map((row, idx) => ({
+      _rowIndex:  idx + 2,
+      CoSo:       String(row[iCoSo] ||'').trim(),
+      LoaiPhong:  String(row[iLoai] ||'').trim(),
+      TenPhong:   String(row[iTen]  ||'').trim(),
+    }));
+}
+
+// normDateGlobal: dùng được ở mọi nơi (không phụ thuộc closure loadXPData)
+function normDateGlobal(s) {
+  if (!s) return '';
+  // Dùng chung _normSheetDate để nhất quán
+  return _normSheetDate(s);
+}
+
+// Normalize ngày từ Google Sheet (có thể là ISO datetime hoặc dd/mm/yyyy)
+function _normSheetDate(v) {
+  if (!v && v !== 0) return '';
+  // Xóa dấu nháy thừa do Google Sheets
+  let s = String(v).trim().replace(/^['"]+|['"]+$/g, '');
+  if (!s) return '';
+  // Đã là dd/mm/yyyy
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) {
+    const [d,m,y] = s.split('/');
+    return d.padStart(2,'0')+'/'+m.padStart(2,'0')+'/'+y;
+  }
+  // ISO datetime: 2026-03-17T17:00:00.000Z -> +7h -> 18/03/2026
+  if (s.includes('T')) {
+    try {
+      const d = new Date(s);
+      if (!isNaN(d)) {
+        const local = new Date(d.getTime() + 7*60*60*1000);
+        return String(local.getUTCDate()).padStart(2,'0')+'/'+
+               String(local.getUTCMonth()+1).padStart(2,'0')+'/'+
+               local.getUTCFullYear();
+      }
+    } catch(e) {}
+  }
+  // yyyy-mm-dd
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const p = s.substring(0,10).split('-');
+    return p[2]+'/'+p[1]+'/'+p[0];
+  }
+  // Google Sheets serial number
+  if (/^\d+(\.\d+)?$/.test(s)) {
+    const serial = parseFloat(s);
+    if (serial > 1000) {
+      const local = new Date(Math.round((serial-25569)*86400*1000) + 7*60*60*1000);
+      return String(local.getUTCDate()).padStart(2,'0')+'/'+
+             String(local.getUTCMonth()+1).padStart(2,'0')+'/'+
+             local.getUTCFullYear();
+    }
+  }
+  return s;
+}
+
+// Đọc sheet DangKy với tự động detect tên cột theo index cố định
+// Header: CoSo|ToBomon|MaGV|TenGV|NgayDangKy|NgayDay|MonHoc|Khoi|LopHoc|TietDay|TenBai|LoaiPhong|TenPhong|SuDungThietBi|Timestamp
+async function readDangKySheet(forceRefresh = false) {
+  const raw = await apiRead('DangKy', forceRefresh);
+  if (!raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0].map(h => String(h).trim());
+  // Map tên cột -> index, fallback về index mặc định
+  function col(names, def) {
+    const idx = headers.findIndex(h => names.some(n => removeDiacritics(h).toLowerCase().includes(n)));
+    return idx >= 0 ? idx : def;
+  }
+  const iCoSo    = col(['coso','co so'], 0);
+  const iToBomon = col(['tobomon','to bo'], 1);
+  const iMaGV    = col(['magv','ma gv'], 2);
+  const iTenGV   = col(['tengv','ten gv','hoten'], 3);
+  const iNgayDK  = col(['ngaydk','ngay dang','dangky'], 4);
+  const iNgayDay = col(['ngayday','ngay day'], 5);
+  const iMonHoc  = col(['mon','mhoc'], 6);
+  const iKhoi    = col(['khoi'], 7);
+  const iLopHoc  = col(['lop'], 8);
+  const iTietDay = col(['tiet'], 9);
+  const iTenBai  = col(['bai','tenbai'], 10);
+  const iLoaiPhong = col(['loaiphong','loai phong'], 11);
+  const iTenPhong  = col(['tenphong','ten phong'], 12);
+  const iThietBi   = col(['thietbi','thiet bi','sudung'], 13);
+
+  const dkParsed = raw.data.slice(1)
+    .filter(row => row.some(v => String(v).trim() !== ''))
+    .map((row, idx) => ({
+      _rowIndex: idx + 2,
+      CoSo:          String(row[iCoSo]    ||'').trim(),
+      ToBomon:       String(row[iToBomon] ||'').trim(),
+      MaGV:          String(row[iMaGV]    ||'').trim(),
+      TenGV:         String(row[iTenGV]   ||'').trim(),
+      NgayDangKy:    _normSheetDate(row[iNgayDK]),
+      NgayDay:       _normSheetDate(row[iNgayDay]),
+      MonHoc:        String(row[iMonHoc]  ||'').trim(),
+      Khoi:          String(row[iKhoi]    ||'').trim(),
+      LopHoc:        String(row[iLopHoc]  ||'').trim(),
+      TietDay:       String(row[iTietDay] ||'').trim(),
+      TenBai:        String(row[iTenBai]  ||'').trim(),
+      LoaiPhong:     String(row[iLoaiPhong]||'').trim(),
+      TenPhong:      String(row[iTenPhong] ||'').trim(),
+      SuDungThietBi: String(row[iThietBi] ||'').trim(),
+    }));
+  console.log('DangKy parsed sample:', dkParsed.slice(0,2).map(r=>({NgayDay:r.NgayDay,LopHoc:r.LopHoc,TietDay:r.TietDay})));
+  return dkParsed;
+}
+
+// Đọc sheet Phong với tự động detect tên cột
+async function readPhongSheet(forceRefresh = false) {
+  const raw = await apiRead('Phong', forceRefresh);
+  if (!raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0];
+  const iCoSo  = headers.findIndex(h => /co.?so/i.test(removeDiacritics(String(h))));
+  const iLoai  = headers.findIndex(h => /loai/i.test(removeDiacritics(String(h))));
+  const iTen   = headers.findIndex(h => /ten/i.test(removeDiacritics(String(h))));
+  const colCoSo = iCoSo >= 0 ? iCoSo : 0;
+  const colLoai = iLoai >= 0 ? iLoai : 1;
+  const colTen  = iTen  >= 0 ? iTen  : 2;
+  return raw.data.slice(1)
+    .filter(row => row.some(v => v !== ''))
+    .map((row, idx) => ({
+      _rowIndex: idx + 2,
+      CoSo:      (row[colCoSo] || '').toString().trim(),
+      LoaiPhong: (row[colLoai] || '').toString().trim(),
+      TenPhong:  (row[colTen]  || '').toString().trim(),
+    }));
+}
+
+// Đọc sheet CoSo với tự động detect tên cột
+async function readCoSoSheet(forceRefresh = false) {
+  const raw = await apiRead('CoSo', forceRefresh);
+  if (!raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0];
+  const iCoSo = headers.findIndex(h => /co.?so/i.test(removeDiacritics(String(h))));
+  const iKhoi = headers.findIndex(h => /khoi/i.test(removeDiacritics(String(h))));
+  const iLop  = headers.findIndex(h => /lop/i.test(removeDiacritics(String(h))));
+  const colCoSo = iCoSo >= 0 ? iCoSo : 0;
+  const colKhoi = iKhoi >= 0 ? iKhoi : 1;
+  const colLop  = iLop  >= 0 ? iLop  : 2;
+  return raw.data.slice(1)
+    .filter(row => row.some(v => v !== ''))
+    .map((row, idx) => ({
+      _rowIndex: idx + 2,
+      CoSo:   (row[colCoSo] || '').toString().trim(),
+      Khoi:   (row[colKhoi] || '').toString().trim(),
+      LopHoc: (row[colLop]  || '').toString().trim(),
+    }));
+}
+
+// Validate realtime khi nhập lớp
+function validateLopInput(el) {
+  let val = el.value.toUpperCase();
+  // Bỏ dấu tự động
+  val = removeDiacritics(val);
+  // Chỉ cho phép chữ và số
+  val = val.replace(/[^A-Z0-9]/g, '');
+  el.value = val;
+}
+
+// Khi chọn khối: tự điền prefix và gợi ý
+function onCSKhoiChange() {
+  const khoi = document.getElementById('cs_khoi').value;
+  const lopInput = document.getElementById('cs_lop');
+  const hint = document.getElementById('cs_lop_hint');
+  if (khoi) {
+    lopInput.placeholder = khoi + 'A1, ' + khoi + 'A2, ' + khoi + 'B1...';
+    lopInput.value = khoi;
+    lopInput.focus();
+    // Đặt con trỏ cuối
+    setTimeout(() => { lopInput.setSelectionRange(lopInput.value.length, lopInput.value.length); }, 10);
+    hint.textContent = 'Nhập tiếp phần chữ và số. VD: ' + khoi + 'A1, ' + khoi + 'A2, ' + khoi + 'B1';
+  } else {
+    hint.textContent = '';
+    lopInput.placeholder = 'VD: 10A1, 10A2 (không dấu)';
+  }
+}
+
+async function deleteCheckedCS() {
+  const checked = [...document.querySelectorAll('.cs_chk:checked')].map(c => parseInt(c.value));
+  if (!checked.length) { showToast('Chọn ít nhất 1 dòng để xóa!', 'error'); return; }
+  if (!confirm(`Xóa ${checked.length} lớp đã chọn?`)) return;
+  for (const idx of checked) {
+    const r = allData.CoSo[idx];
+    await updateRow('CoSo', r._rowIndex, ['','','']);
+  }
+  showToast('Đã xóa!', 'success');
+  loadCSTable();
+}
+
+function clearCSForm() {
+  document.getElementById('cs_coso').value = '';
+  document.getElementById('cs_khoi').value = '';
+  document.getElementById('cs_lop').value = '';
+  document.getElementById('cs_editRow').value = '';
+  const hint = document.getElementById('cs_lop_hint');
+  if (hint) { hint.textContent = ''; }
+  document.getElementById('cs_lop').placeholder = 'VD: 10A1, 10A2 (không dấu)';
+}
+
+// ==================== TAB PHÒNG ====================
+const PHONG_BVT = ['TN Lý','TN Hóa','TN Sinh','Nhạc','Mỹ thuật','Hội trường','Thư Viện'];
+const PHONG_TDT = ['TN Lý 1','TN Lý 2','TN Hóa 1','TN Hóa 2','TN Sinh','Âm nhạc','MT','Multimedia','Hội trường','Thư Viện'];
+const LOAI_PHONG = ['Phòng thường','Phòng Thí Nghiệm','Phòng âm nhạc','Phòng Mỹ thuật','Phòng Multimedia','Phòng Hội Trường','Phòng thư viện'];
+
+async function renderPhong() {
+  const el = document.getElementById('tab_phong');
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">Thêm / Cập nhật Phòng</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cơ sở <span class="req">*</span></label>
+          <select id="ph_coso" class="form-control" onchange="onPhCoSoChange()">
+            <option value="">-- Chọn cơ sở --</option>
+            <option value="Cs TĐT">Cs TĐT</option>
+            <option value="Cs BVT">Cs BVT</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Loại phòng <span class="req">*</span></label>
+          <select id="ph_loai" class="form-control">
+            <option value="">-- Chọn loại phòng --</option>
+            ${LOAI_PHONG.map(l=>`<option value="${l}">${l}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Tên phòng <span class="req">*</span></label>
+          <select id="ph_ten" class="form-control">
+            <option value="">-- Chọn cơ sở trước --</option>
+          </select>
+        </div>
+      </div>
+      <input type="hidden" id="ph_editRow" value="">
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="savePhong()">💾 Lưu</button>
+        <button class="btn btn-secondary" onclick="clearPhForm()">↩ Làm mới</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Danh sách Phòng</div>
+      <div id="phTable"><div class="empty-state"><div class="icon">⏳</div>Đang tải...</div></div>
+    </div>`;
+  loadPhTable();
+}
+
+function onPhCoSoChange() {
+  const coso = document.getElementById('ph_coso').value;
+  const phongs = coso === 'Cs BVT' ? PHONG_BVT : coso === 'Cs TĐT' ? PHONG_TDT : [];
+  const sel = document.getElementById('ph_ten');
+  sel.innerHTML = '<option value="">-- Chọn tên phòng --</option>' + phongs.map(p=>`<option value="${p}">${p}</option>`).join('');
+}
+
+async function loadPhTable() {
+  const el = document.getElementById('phTable');
+  if (!el) return;
+  const data = await readPhongSheet(true);
+  allData.Phong = data;
+  if (!data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">🚪</div>Chưa có phòng nào</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <tr><th><input type="checkbox" id="ph_chkAll" onchange="toggleAllChk('ph_chk',this.checked)"></th><th>Cơ sở</th><th>Loại phòng</th><th>Tên phòng</th><th>Thao tác</th></tr>
+    ${data.map((r,i) => `<tr>
+      <td><input type="checkbox" class="ph_chk" value="${i}"></td>
+      <td><span class="badge badge-blue">${r.CoSo||''}</span></td>
+      <td>${r.LoaiPhong||''}</td>
+      <td><b>${r.TenPhong||''}</b></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-secondary btn-sm" onclick="editPh(${i})">✏️ Sửa</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePh(${i})">🗑️</button>
+      </td>
+    </tr>`).join('')}
+  </table></div>
+  <div class="btn-group" style="margin-top:12px">
+    <button class="btn btn-danger btn-sm" onclick="deleteCheckedPh()">🗑️ Xóa đã chọn</button>
+  </div>`;
+}
+
+function editPh(idx) {
+  const ph = allData.Phong[idx];
+  document.getElementById('ph_coso').value = ph.CoSo || '';
+  onPhCoSoChange();
+  setTimeout(() => {
+    document.getElementById('ph_loai').value = ph.LoaiPhong || '';
+    document.getElementById('ph_ten').value = ph.TenPhong || '';
+  }, 50);
+  document.getElementById('ph_editRow').value = ph._rowIndex;
+  window.scrollTo(0, 0);
+  showToast('Đang chỉnh sửa phòng: ' + ph.TenPhong);
+}
+
+async function savePhong() {
+  const coso = document.getElementById('ph_coso').value;
+  const loai = document.getElementById('ph_loai').value;
+  const ten = document.getElementById('ph_ten').value;
+  if (!coso || !loai || !ten) { showToast('Vui lòng chọn đầy đủ thông tin!', 'error'); return; }
+  const editRow = document.getElementById('ph_editRow').value;
+  const row = [coso, loai, ten];
+  try {
+    if (editRow) { await updateRow('Phong', parseInt(editRow), row); showToast('Cập nhật thành công!', 'success'); }
+    else { await appendRow('Phong', row); showToast('Đã lưu phòng!', 'success'); }
+    clearPhForm(); loadPhTable();
+  } catch(e) { showToast('Lỗi lưu dữ liệu!', 'error'); }
+}
+
+async function deleteCheckedPh() {
+  const checked = [...document.querySelectorAll('.ph_chk:checked')].map(c => parseInt(c.value));
+  if (!checked.length) { showToast('Chọn ít nhất 1 dòng để xóa!', 'error'); return; }
+  if (!confirm(`Xóa ${checked.length} phòng đã chọn?`)) return;
+  for (const idx of checked) {
+    const r = allData.Phong[idx];
+    await updateRow('Phong', r._rowIndex, ['','','']);
+  }
+  showToast('Đã xóa!', 'success');
+  loadPhTable();
+}
+
+function clearPhForm() {
+  document.getElementById('ph_coso').value = '';
+  document.getElementById('ph_loai').value = '';
+  document.getElementById('ph_ten').innerHTML = '<option value="">-- Chọn cơ sở trước --</option>';
+  document.getElementById('ph_editRow').value = '';
+}
+
+async function deletePh(idx) {
+  const ph = allData.Phong[idx];
+  if (!confirm('Xóa phòng: ' + ph.TenPhong + '?')) return;
+  await updateRow('Phong', ph._rowIndex, ['','','']);
+  showToast('Đã xóa!', 'success'); loadPhTable();
+}
+
+function toggleAllChk(cls, checked) {
+  document.querySelectorAll('.' + cls).forEach(c => c.checked = checked);
+}
+
+// ==================== TAB MÔN HỌC ====================
+async function renderMonHoc() {
+  const el = document.getElementById('tab_monhoc');
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">Thêm / Cập nhật Môn Học</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Mã môn <span class="req">*</span></label>
+          <input type="text" id="mh_ma" class="form-control" placeholder="Nhập mã môn">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tên môn <span class="req">*</span></label>
+          <input type="text" id="mh_ten" class="form-control" placeholder="Nhập tên môn">
+        </div>
+      </div>
+      <input type="hidden" id="mh_editRow" value="">
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="saveMonHoc()">💾 Lưu</button>
+        <button class="btn btn-secondary" onclick="clearMHForm()">↩ Làm mới</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Danh sách Môn Học</div>
+      <div id="mhTable"><div class="empty-state"><div class="icon">⏳</div>Đang tải...</div></div>
+    </div>`;
+  loadMHTable();
+}
+
+async function loadMHTable() {
+  const el = document.getElementById('mhTable');
+  if (!el) return;
+  const data = await readSheet('MonHoc');
+  allData.MonHoc = data;
+  if (!data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📖</div>Chưa có môn học</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <tr><th><input type="checkbox" id="mh_chkAll" onchange="toggleAllChk('mh_chk',this.checked)"></th>
+    <th>Mã môn</th><th>Tên môn</th><th>Thao tác</th></tr>
+    ${data.map((r,i) => `<tr>
+      <td><input type="checkbox" class="mh_chk" value="${i}"></td>
+      <td><span class="badge badge-green">${r.MaMon||''}</span></td>
+      <td>${r.TenMon||''}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-secondary btn-sm" onclick="editMH(${i})">✏️ Sửa</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMH(${i})">🗑️</button>
+      </td>
+    </tr>`).join('')}
+  </table></div>
+  <div class="btn-group" style="margin-top:12px">
+    <button class="btn btn-danger btn-sm" onclick="deleteCheckedMH()">🗑️ Xóa đã chọn</button>
+  </div>`;
+}
+
+function editMH(idx) {
+  const mh = allData.MonHoc[idx];
+  document.getElementById('mh_ma').value = mh.MaMon || '';
+  document.getElementById('mh_ten').value = mh.TenMon || '';
+  document.getElementById('mh_editRow').value = mh._rowIndex;
+  window.scrollTo(0, 0);
+}
+
+async function saveMonHoc() {
+  const ma = document.getElementById('mh_ma').value.trim();
+  const ten = document.getElementById('mh_ten').value.trim();
+  if (!ma || !ten) { showToast('Vui lòng nhập đầy đủ!', 'error'); return; }
+  const editRow = document.getElementById('mh_editRow').value;
+  const row = [ma, ten];
+  try {
+    if (editRow) { await updateRow('MonHoc', parseInt(editRow), row); showToast('Cập nhật thành công!', 'success'); }
+    else { await appendRow('MonHoc', row); showToast('Đã lưu môn học!', 'success'); }
+    clearMHForm(); loadMHTable();
+  } catch(e) { showToast('Lỗi lưu dữ liệu!', 'error'); }
+}
+
+function clearMHForm() {
+  document.getElementById('mh_ma').value = '';
+  document.getElementById('mh_ten').value = '';
+  document.getElementById('mh_editRow').value = '';
+}
+
+async function deleteMH(idx) {
+  const mh = allData.MonHoc[idx];
+  if (!confirm('Xóa môn: ' + mh.TenMon + '?')) return;
+  await updateRow('MonHoc', mh._rowIndex, ['','']);
+  showToast('Đã xóa!', 'success'); loadMHTable();
+}
+async function deleteCheckedMH() {
+  const checked = [...document.querySelectorAll('.mh_chk:checked')].map(c => parseInt(c.value));
+  if (!checked.length) { showToast('Chọn ít nhất 1 dòng!', 'error'); return; }
+  if (!confirm('Xóa ' + checked.length + ' môn học đã chọn?')) return;
+  for (const idx of checked) await updateRow('MonHoc', allData.MonHoc[idx]._rowIndex, ['','']);
+  showToast('Đã xóa!', 'success'); loadMHTable();
+}
+
+// Đọc sheet XepPhong với normalize ngày - tự detect cột
+async function readXepPhongSheet(forceRefresh = false) {
+  const raw = await apiRead('XepPhong', forceRefresh);
+  if (!raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0].map(h => removeDiacritics(String(h).trim()).toLowerCase());
+
+  function col(names, def) {
+    const idx = headers.findIndex(h => names.some(n => h.includes(n)));
+    return idx >= 0 ? idx : def;
+  }
+
+  const iCoSo      = col(['coso','co so'], 0);
+  const iToBomon   = col(['tobomon','tobo'], 1);
+  const iMaGV      = col(['magv'], 2);
+  const iTenGV     = col(['tengv','ten gv'], 3);
+  const iNgayDK    = col(['ngaydk','ngaydangky'], 4);
+  const iNgayDay   = col(['ngayday'], 5);
+  const iMonHoc    = col(['monhoc','mon hoc'], 6);
+  // Khoi có thể không có trong sheet cũ
+  const iKhoi      = col(['khoi'], -1);
+  // LopHoc: tìm cột chứa 'lop' nhưng không phải 'loaiphong'
+  const iLopHoc    = headers.findIndex(h => h.includes('lop') && !h.includes('loai'));
+  const iTietDay   = col(['tietday','tiet day','tiet'], iLopHoc >= 0 ? iLopHoc+1 : 8);
+  const iTenBai    = col(['tenbai','ten bai'], iTietDay >= 0 ? iTietDay+1 : 9);
+  const iLoaiPhong = col(['loaiphong','loai phong'], 10);
+  const iThietBi   = col(['sudungthietbi','thietbi','su dung'], 11);
+  const iPhong     = col(['phongduocxep','phong duoc'], 12);
+
+  console.log('XepPhong headers:', raw.data[0]);
+  console.log('Col indices - Lop:', iLopHoc, 'Tiet:', iTietDay, 'Phong:', iPhong);
+
+  const parsed = raw.data.slice(1)
+    .filter(row => row.some(v => String(v).trim() !== ''))
+    .map((row, idx) => ({
+      _rowIndex:     idx + 2,
+      CoSo:          String(row[iCoSo]    ||'').trim(),
+      ToBomon:       String(row[iToBomon] ||'').trim(),
+      MaGV:          String(row[iMaGV]    ||'').trim(),
+      TenGV:         String(row[iTenGV]   ||'').trim(),
+      NgayDangKy:    _normSheetDate(row[iNgayDK]),
+      NgayDay:       _normSheetDate(row[iNgayDay]),
+      MonHoc:        String(row[iMonHoc]  ||'').trim(),
+      Khoi:          iKhoi >= 0 ? String(row[iKhoi]||'').trim() : '',
+      LopHoc:        iLopHoc >= 0 ? String(row[iLopHoc]||'').trim() : '',
+      TietDay:       iTietDay >= 0 ? String(row[iTietDay]||'').trim() : '',
+      TenBai:        iTenBai >= 0 ? String(row[iTenBai]||'').trim() : '',
+      LoaiPhong:     iLoaiPhong >= 0 ? String(row[iLoaiPhong]||'').trim() : '',
+      SuDungThietBi: iThietBi >= 0 ? String(row[iThietBi]||'').trim() : '',
+      PhongDuocXep:  iPhong >= 0 ? String(row[iPhong]||'').trim() : '',
+    }));
+  console.log('XepPhong parsed sample:', parsed.slice(0,2).map(r=>({NgayDay:r.NgayDay,LopHoc:r.LopHoc,TietDay:r.TietDay,Phong:r.PhongDuocXep})));
+  return parsed;
+}
+
+// Parse DangKy sheet
+function parseDangKyData(raw) {
+  if (!raw || !raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0].map(h => String(h).trim());
+  function col(names, def) {
+    const idx = headers.findIndex(h => names.some(n => removeDiacritics(h).toLowerCase().includes(n)));
+    return idx >= 0 ? idx : def;
+  }
+  const iCoSo=col(['coso'],0), iToBomon=col(['tobomon'],1), iMaGV=col(['magv'],2),
+        iTenGV=col(['tengv'],3), iNgayDK=col(['ngaydk'],4), iNgayDay=col(['ngayday'],5),
+        iMonHoc=col(['mon'],6), iKhoi=col(['khoi'],7), iLopHoc=headers.findIndex(h=>removeDiacritics(h).toLowerCase().includes('lop')&&!removeDiacritics(h).toLowerCase().includes('loai')),
+        iTietDay=col(['tiet'],9), iTenBai=col(['bai'],10), iLoaiPhong=col(['loaiphong'],11),
+        iTenPhong=col(['tenphong'],12), iThietBi=col(['thietbi'],13);
+  return raw.data.slice(1)
+    .filter(row => row.some(v => String(v).trim() !== ''))
+    .map((row, idx) => ({
+      _rowIndex: idx+2,
+      CoSo: String(row[iCoSo]||'').trim(), ToBomon: String(row[iToBomon]||'').trim(),
+      MaGV: String(row[iMaGV]||'').trim(), TenGV: String(row[iTenGV]||'').trim(),
+      NgayDangKy: _normSheetDate(row[iNgayDK]), NgayDay: _normSheetDate(row[iNgayDay]),
+      MonHoc: String(row[iMonHoc]||'').trim(), Khoi: String(row[iKhoi]||'').trim(),
+      LopHoc: String(row[iLopHoc>=0?iLopHoc:8]||'').trim(),
+      TietDay: String(row[iTietDay]||'').trim(), TenBai: String(row[iTenBai]||'').trim(),
+      LoaiPhong: String(row[iLoaiPhong]||'').trim(), TenPhong: String(row[iTenPhong]||'').trim(),
+      SuDungThietBi: String(row[iThietBi]||'').trim(),
+    }));
+}
+
+// Parse XepPhong sheet
+function parseXepPhongData(raw) {
+  if (!raw || !raw.success || !raw.data || raw.data.length < 2) return [];
+  const headers = raw.data[0].map(h => removeDiacritics(String(h).trim()).toLowerCase());
+  function col(names, def) {
+    const idx = headers.findIndex(h => names.some(n => h.includes(n)));
+    return idx >= 0 ? idx : def;
+  }
+  const iCoSo=col(['coso'],0), iToBomon=col(['tobomon'],1), iMaGV=col(['magv'],2),
+        iTenGV=col(['tengv'],3), iNgayDK=col(['ngaydk'],4), iNgayDay=col(['ngayday'],5),
+        iMonHoc=col(['mon'],6),
+        iLopHoc=headers.findIndex(h=>h.includes('lop')&&!h.includes('loai')),
+        iTietDay=col(['tiet'],8), iTenBai=col(['bai'],9), iLoaiPhong=col(['loaiphong'],10),
+        iThietBi=col(['thietbi','sudung'],11), iPhong=col(['phongduoc','phong'],12);
+  return raw.data.slice(1)
+    .filter(row => row.some(v => String(v).trim() !== ''))
+    .map((row, idx) => ({
+      _rowIndex: idx+2,
+      CoSo: String(row[iCoSo]||'').trim(), ToBomon: String(row[iToBomon]||'').trim(),
+      MaGV: String(row[iMaGV]||'').trim(), TenGV: String(row[iTenGV]||'').trim(),
+      NgayDangKy: _normSheetDate(row[iNgayDK]), NgayDay: _normSheetDate(row[iNgayDay]),
+      MonHoc: String(row[iMonHoc]||'').trim(),
+      LopHoc: String(row[iLopHoc>=0?iLopHoc:7]||'').trim(),
+      TietDay: String(row[iTietDay]||'').trim(), TenBai: String(row[iTenBai]||'').trim(),
+      LoaiPhong: String(row[iLoaiPhong]||'').trim(),
+      SuDungThietBi: String(row[iThietBi]||'').trim(),
+      PhongDuocXep: String(row[iPhong>=0?iPhong:12]||'').trim(),
+    }));
+}
+
+// ==================== TAB ĐĂNG KÝ ====================
+async function renderDangKy() {
+  const el = document.getElementById('tab_dangky');
+  el.innerHTML = '<div class="card"><div class="card-title">Đăng Ký Tiết Dạy</div><div class="empty-state"><div class="icon">⏳</div>Đang tải dữ liệu...</div></div>';
+  showLoading('Đang tải dữ liệu...');
+
+  let gvList, csList, mhList, phList;
+  try {
+    [gvList, csList, mhList, phList] = await Promise.all([
+      readSheet('GiaoVien'),
+      readCoSoSheet(),
+      readSheet('MonHoc'),
+      readPhongSheet()
+    ]);
+  } catch(e) {
+    hideLoading();
+    showToast('Lỗi tải dữ liệu: ' + e.message, 'error');
+    return;
+  }
+
+  allData.GiaoVien = gvList || [];
+  allData.CoSo     = csList || [];
+  allData.MonHoc   = mhList || [];
+  allData.Phong    = phList || [];
+
+  const toBDs = [...new Set((gvList||[]).map(g => g.ToBomon).filter(Boolean))];
+  const coSoOpts = ['Cs TĐT', 'Cs BVT'];
+  const mhOpts = (mhList||[]).map(m => '<option value="'+m.TenMon+'">'+m.TenMon+'</option>').join('');
+  const toBDOpts = toBDs.map(t => '<option value="'+t+'">'+t+'</option>').join('');
+  const coSoSelOpts = coSoOpts.map(c => '<option value="'+c+'">'+c+'</option>').join('');
+  const tietOpts = [1,2,3,4,5,6,7,8].map(t => '<option value="'+t+'">Tiết '+t+'</option>').join('');
+  const adminFilter = isAdmin
+    ? '<div class="form-group"><label class="form-label">Lọc theo GV</label><input type="text" id="dk_filter_gv" class="form-control" placeholder="Nhập tên GV..." oninput="filterDKTable()"></div>'
+    : '';
+
+  el.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">Đăng Ký Tiết Dạy</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label class="form-label">Cơ sở <span class="req">*</span></label>' +
+        '<select id="dk_coso" class="form-control" onchange="onDKCoSoChange()">' +
+        '<option value="">-- Chọn cơ sở --</option>' + coSoSelOpts + '</select></div>' +
+        '<div class="form-group"><label class="form-label">Tổ bộ môn <span class="req">*</span></label>' +
+        '<select id="dk_to" class="form-control" onchange="onDKToChange()">' +
+        '<option value="">-- Chọn tổ BM --</option>' + toBDOpts + '</select></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label class="form-label">Giáo viên <span class="req">*</span></label>' +
+        '<select id="dk_gv" class="form-control"><option value="">-- Chọn GV --</option></select></div>' +
+        '<div class="form-group"><label class="form-label">Ngày đăng ký <span class="req">*</span></label>' +
+        '<input type="date" id="dk_ngaydk" class="form-control" value="' + todayInput() + '"></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label class="form-label">Ngày dạy <span class="req">*</span></label>' +
+        '<input type="date" id="dk_ngayday" class="form-control"></div>' +
+        '<div class="form-group"><label class="form-label">Môn học <span class="req">*</span></label>' +
+        '<select id="dk_mon" class="form-control"><option value="">-- Chọn môn --</option>' + mhOpts + '</select></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label class="form-label">Khối <span class="req">*</span></label>' +
+        '<select id="dk_khoi" class="form-control" onchange="onDKKhoiChange()"><option value="">-- Chọn cơ sở trước --</option></select></div>' +
+        '<div class="form-group"><label class="form-label">Lớp học <span class="req">*</span></label>' +
+        '<select id="dk_lop" class="form-control"><option value="">-- Chọn khối trước --</option></select></div>' +
+      '</div>' +
+      '<div class="form-row single">' +
+        '<div class="form-group"><label class="form-label">Tiết đăng ký dạy <span class="req">*</span></label>' +
+        '<select id="dk_tiet" class="form-control"><option value="">-- Chọn tiết --</option>' + tietOpts + '</select></div>' +
+      '</div>' +
+      '<div class="form-row single">' +
+        '<div class="form-group"><label class="form-label">Tên bài học <span class="req">*</span></label>' +
+        '<input type="text" id="dk_bai" class="form-control" placeholder="Nhập tên bài học"></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label class="form-label">Loại phòng <span class="req">*</span></label>' +
+        '<select id="dk_loaiphong" class="form-control" onchange="onDKLoaiPhongChange()"><option value="">-- Chọn cơ sở trước --</option></select></div>' +
+        '<div class="form-group"><label class="form-label" style="color:var(--text-muted)">Tên phòng <small>(Admin xếp sau)</small></label>' +
+        '<select id="dk_tenphong" class="form-control" disabled style="opacity:0.45;cursor:not-allowed;background:#f0f0f0"><option value="">-- Admin sẽ xếp phòng --</option></select></div>' +
+      '</div>' +
+      '<div class="form-row single">' +
+        '<div class="form-group"><label class="form-label">HS sử dụng thiết bị <span class="req">*</span></label>' +
+        '<select id="dk_thietbi" class="form-control">' +
+        '<option value="">-- Chọn --</option>' +
+        '<option value="Có ĐT">Có ĐT</option>' +
+        '<option value="Có máy tính bảng">Có máy tính bảng</option>' +
+        '<option value="Có ĐT & máy tính bảng">Có ĐT & máy tính bảng</option>' +
+        '<option value="Không">Không</option>' +
+        '</select></div>' +
+      '</div>' +
+      '<input type="hidden" id="dk_editRow" value="">' +
+      '<div class="btn-group">' +
+        '<button class="btn btn-primary" onclick="saveDangKy()">💾 Lưu đăng ký</button>' +
+        '<button class="btn btn-secondary" onclick="clearDKForm()">↩ Làm mới</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">Lịch đăng ký của tôi</div>' +
+      '<div class="filter-row" style="margin-bottom:12px">' +
+        '<div class="form-group"><label class="form-label">Lọc theo ngày dạy</label>' +
+        '<input type="date" id="dk_filter_date" class="form-control" onchange="filterDKTable()"></div>' +
+        adminFilter +
+        '<div class="form-group"><label class="form-label">Lọc theo lớp</label>' +
+        '<input type="text" id="dk_filter_lop" class="form-control" placeholder="VD: 10A1..." oninput="filterDKTable()"></div>' +
+        '<button class="btn btn-secondary btn-sm" onclick="clearDKFilter()" style="margin-top:22px">↩ Xóa lọc</button>' +
+      '</div>' +
+      '<div id="dkTable"><div class="empty-state"><div class="icon">⏳</div>Đang tải...</div></div>' +
+    '</div>';
+
+  hideLoading();
+
+  // Pre-fill GV if not admin
+  if (!isAdmin && currentUser) {
+    const dkTo = document.getElementById('dk_to');
+    dkTo.value = currentUser.ToBomon || '';
+    dkTo.disabled = true;
+    onDKToChange(true);
+  }
+
+  loadDKTable();
+}
+
+
+function onDKCoSoChange() {
+  const coso = document.getElementById('dk_coso').value;
+  const csList = allData.CoSo || [];
+  const phongList = allData.Phong || [];
+
+  // Lấy danh sách Khối theo cơ sở
+  const khois = [...new Set(
+    csList
+      .filter(c => (c.CoSo || '').trim() === coso)
+      .map(c => (c.Khoi || '').toString().trim())
+      .filter(Boolean)
+  )].sort((a,b) => parseInt(a) - parseInt(b));
+
+  const dkKhoi = document.getElementById('dk_khoi');
+  dkKhoi.innerHTML = khois.length
+    ? '<option value="">-- Chọn khối --</option>' + khois.map(k=>`<option value="${k}">Khối ${k}</option>`).join('')
+    : '<option value="">-- Chưa có dữ liệu (thêm ở Tab Cơ Sở) --</option>';
+
+  // Reset lớp
+  document.getElementById('dk_lop').innerHTML = '<option value="">-- Chọn khối trước --</option>';
+
+  // Lấy loại phòng từ sheet Phong
+  const loaiPhongs = [...new Set(
+    phongList
+      .filter(p => (p.CoSo || '').trim() === coso)
+      .map(p => p.LoaiPhong || p['Loại phòng'] || '')
+      .filter(Boolean)
+  )];
+  const dkLoai = document.getElementById('dk_loaiphong');
+  dkLoai.innerHTML = loaiPhongs.length
+    ? '<option value="">-- Chọn loại phòng --</option>' + loaiPhongs.map(l=>`<option value="${l}">${l}</option>`).join('')
+    : '<option value="">-- Chưa có phòng (thêm ở Tab Phòng) --</option>';
+
+  // Reset tên phòng
+  const dkPhong = document.getElementById('dk_tenphong');
+  if (dkPhong) dkPhong.innerHTML = '<option value="">-- Chọn loại phòng trước --</option>';
+}
+
+function onDKKhoiChange() {
+  const coso = document.getElementById('dk_coso').value;
+  const khoi = document.getElementById('dk_khoi').value;
+  const csList = allData.CoSo || [];
+
+  const lops = [...new Set(
+    csList
+      .filter(c =>
+        (c.CoSo || '').trim() === coso &&
+        (c.Khoi || c['Khối'] || '').toString().trim() === khoi
+      )
+      .map(c => c.LopHoc || '')
+      .filter(Boolean)
+  )].sort();
+
+  const dkLop = document.getElementById('dk_lop');
+  dkLop.innerHTML = lops.length
+    ? '<option value="">-- Chọn lớp --</option>' + lops.map(l=>`<option value="${l}">${l}</option>`).join('')
+    : '<option value="">-- Chưa có lớp trong khối này --</option>';
+}
+
+function onDKToChange(silent) {
+  const to = document.getElementById('dk_to').value;
+  const gvList = allData.GiaoVien || [];
+  const gvs = gvList.filter(g => g.ToBomon === to);
+  const dkGV = document.getElementById('dk_gv');
+  dkGV.innerHTML = '<option value="">-- Chọn GV --</option>' + gvs.map(g=>`<option value="${g.MaGV}">${g.HoTen}</option>`).join('');
+  dkGV.disabled = false;
+  // Nếu là GV thường: tự động chọn đúng GV của họ và khóa lại
+  if (!isAdmin && currentUser) {
+    dkGV.value = currentUser.MaGV || '';
+    dkGV.disabled = true;
+  }
+}
+
+function onDKLoaiPhongChange() {
+  const coso = document.getElementById('dk_coso').value;
+  const loai = document.getElementById('dk_loaiphong').value;
+  const phongList = allData.Phong || [];
+  const phongs = phongList.filter(p => p.CoSo === coso && p.LoaiPhong === loai).map(p => p.TenPhong).filter(Boolean);
+  const sel = document.getElementById('dk_tenphong');
+  if (sel) sel.innerHTML = '<option value="">-- Chọn tên phòng --</option>' + phongs.map(p=>`<option value="${p}">${p}</option>`).join('');
+}
+
+async function saveDangKy() {
+  const coso = document.getElementById('dk_coso').value;
+  const to = document.getElementById('dk_to').value;
+  const maGV = document.getElementById('dk_gv').value;
+  const ngaydk = document.getElementById('dk_ngaydk').value;
+  const ngayday = document.getElementById('dk_ngayday').value;
+  const mon = document.getElementById('dk_mon').value;
+  const khoi = document.getElementById('dk_khoi').value;
+  const lop = document.getElementById('dk_lop').value;
+  const tiet = document.getElementById('dk_tiet').value;
+  const bai = document.getElementById('dk_bai').value.trim();
+  const loaiphong = document.getElementById('dk_loaiphong').value;
+  const tenphong = document.getElementById('dk_tenphong')?.value || '';
+  const thietbi = document.getElementById('dk_thietbi').value;
+  const editRow = document.getElementById('dk_editRow').value;
+
+  if (!coso||!to||!maGV||!ngaydk||!ngayday||!mon||!lop||!tiet||!bai||!loaiphong||!thietbi) {
+    showToast('Vui lòng nhập đầy đủ tất cả thông tin!', 'error'); return;
+  }
+
+  // Find teacher name
+  const gvInfo = (allData.GiaoVien||[]).find(g => g.MaGV === maGV);
+  const tenGV = gvInfo ? gvInfo.HoTen : maGV;
+  const ts = new Date().toLocaleString('vi-VN');
+
+  const row = [coso, to, maGV, tenGV, fromInputDate(ngaydk), fromInputDate(ngayday), mon, khoi, lop, tiet, bai, loaiphong, tenphong, thietbi, ts];
+
+  try {
+    if (editRow) {
+      // Lấy record cũ để biết phòng đã xếp
+      const oldRecord = (allData.DangKy||[]).find(d => String(d._rowIndex) === String(editRow));
+      await updateRow('DangKy', parseInt(editRow), row);
+
+      // Giữ lại phòng đã xếp trong XepPhong - cập nhật thông tin mới nhưng GIỮ phòng
+      if (oldRecord) {
+        const xpList = await readXepPhongSheet();
+        const xpMatch = xpList.find(x =>
+          x.MaGV === oldRecord.MaGV &&
+          x.LopHoc === oldRecord.LopHoc &&
+          String(x.TietDay) === String(oldRecord.TietDay) &&
+          x.NgayDay === oldRecord.NgayDay
+        );
+        if (xpMatch && xpMatch.PhongDuocXep) {
+          const xpRow = [coso, to, maGV, tenGV, fromInputDate(ngaydk), fromInputDate(ngayday),
+            mon, khoi, lop, tiet, bai, loaiphong, thietbi, xpMatch.PhongDuocXep, ts];
+          await updateRow('XepPhong', xpMatch._rowIndex, xpRow);
+        }
+      }
+      showToast('Cập nhật đăng ký thành công! Phòng đã xếp được giữ nguyên.', 'success');
+    } else {
+      await appendRow('DangKy', row);
+      showToast('Đăng ký tiết dạy thành công!', 'success');
+    }
+    clearDKForm();
+    loadDKTable();
+  } catch(e) { showToast('Lỗi lưu dữ liệu!', 'error'); }
+}
+
+function clearDKForm() {
+  ['dk_coso','dk_khoi','dk_lop','dk_tiet','dk_mon','dk_thietbi','dk_loaiphong'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('dk_khoi').innerHTML = '<option value="">-- Chọn cơ sở trước --</option>';
+  document.getElementById('dk_lop').innerHTML = '<option value="">-- Chọn khối trước --</option>';
+  const dkPhong = document.getElementById('dk_tenphong');
+  if (dkPhong) dkPhong.innerHTML = '<option value="">-- Chọn loại phòng trước --</option>';
+  document.getElementById('dk_ngaydk').value = todayInput();
+  document.getElementById('dk_ngayday').value = '';
+  document.getElementById('dk_bai').value = '';
+  document.getElementById('dk_editRow').value = '';
+  if (!isAdmin && currentUser) {
+    const dkTo = document.getElementById('dk_to');
+    dkTo.value = currentUser.ToBomon || '';
+    dkTo.disabled = true;
+    onDKToChange(true); // tự điền + khóa GV
+  }
+}
+
+function filterDKTable() {
+  const dateF = document.getElementById('dk_filter_date')?.value || '';
+  const gvF   = (document.getElementById('dk_filter_gv')?.value || '').toLowerCase().trim();
+  const lopF  = (document.getElementById('dk_filter_lop')?.value || '').toLowerCase().trim();
+  renderDKRows(dateF, gvF, lopF);
+}
+
+function clearDKFilter() {
+  const fd = document.getElementById('dk_filter_date');
+  const fg = document.getElementById('dk_filter_gv');
+  const fl = document.getElementById('dk_filter_lop');
+  if (fd) fd.value = '';
+  if (fg) fg.value = '';
+  if (fl) fl.value = '';
+  renderDKRows('', '', '');
+}
+
+function renderDKRows(dateF, gvF, lopF) {
+  const el = document.getElementById('dkTable');
+  if (!el) return;
+  const data = allData.DangKy || [];
+  let filtered = data;
+  if (!isAdmin && currentUser) filtered = data.filter(d => d.MaGV === currentUser.MaGV);
+  if (dateF) {
+    const df = dateF.split('-');
+    const dStr = df[2]+'/'+df[1]+'/'+df[0];
+    filtered = filtered.filter(d => (d.NgayDay||'') === dStr);
+  }
+  if (gvF) filtered = filtered.filter(d => (d.TenGV||'').toLowerCase().includes(gvF));
+  if (lopF) filtered = filtered.filter(d => (d.LopHoc||'').toLowerCase().includes(lopF));
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>Không tìm thấy kết quả</div>';
+    return;
+  }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <tr>
+      <th><input type="checkbox" id="dk_chkAll" onchange="toggleAllChk('dk_chk',this.checked)"></th>
+      <th>Cơ sở</th><th>GV</th><th>Ngày dạy</th><th>Môn</th><th>Khối</th><th>Lớp</th><th>Tiết</th><th>Bài</th><th>Loại phòng</th><th>Thiết bị</th><th>Thao tác</th>
+    </tr>
+    ${filtered.map((r,i) => `<tr>
+      <td><input type="checkbox" class="dk_chk" value="${data.indexOf(r)}"></td>
+      <td><span class="badge badge-blue">${r.CoSo||''}</span></td>
+      <td>${r.TenGV||''}</td><td>${r.NgayDay||''}</td><td>${r.MonHoc||''}</td>
+      <td>${r.Khoi ? 'Khối '+r.Khoi : ''}</td>
+      <td>${r.LopHoc||''}</td><td>Tiết ${r.TietDay||''}</td><td>${r.TenBai||''}</td>
+      <td>${r.LoaiPhong||''}</td><td>${r.SuDungThietBi||''}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-secondary btn-sm" onclick="editDK(${data.indexOf(r)})">✏️ Sửa</button>
+      </td>
+    </tr>`).join('')}
+  </table></div>
+  <div class="btn-group" style="margin-top:12px">
+    <button class="btn btn-danger btn-sm" onclick="deleteCheckedDK()">🗑️ Xóa đã chọn</button>
+  </div>`;
+}
+
+async function loadDKTable() {
+  const el = document.getElementById('dkTable');
+  if (!el) return;
+  // Dùng cache nếu có, không gọi lại API
+  const data = await readDangKySheet();
+  allData.DangKy = data;
+  let filtered = data;
+  if (!isAdmin && currentUser) {
+    filtered = data.filter(d => d.MaGV === currentUser.MaGV);
+  }
+  if (!data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📝</div>Chưa có đăng ký nào</div>'; return; }
+  renderDKRows('', '', '');
+}
+
+async function deleteCheckedDK() {
+  const checked = [...document.querySelectorAll('.dk_chk:checked')].map(c => parseInt(c.value));
+  if (!checked.length) { showToast('Chọn ít nhất 1 dòng để xóa!', 'error'); return; }
+  if (!confirm('Xóa ' + checked.length + ' đăng ký đã chọn?')) return;
+  const data = allData.DangKy || [];
+  let ok = 0;
+  for (const idx of checked) {
+    try {
+      const r = data[idx];
+      // Xóa bằng cách ghi trống toàn bộ cột
+      const emptyRow = Array(15).fill('');
+      await updateRow('DangKy', r._rowIndex, emptyRow);
+      ok++;
+    } catch(e) {}
+  }
+  showToast('Đã xóa ' + ok + ' đăng ký!', 'success');
+  loadDKTable();
+}
+
+async function editDK(idx) {
+  const r = allData.DangKy[idx];
+
+  // Set cơ sở -> populate Khối và Loại phòng
+  document.getElementById('dk_coso').value = r.CoSo || '';
+  onDKCoSoChange();
+
+  // Set Tổ BM -> populate GV
+  const dkTo = document.getElementById('dk_to');
+  dkTo.value = r.ToBomon || '';
+  if (!isAdmin) dkTo.disabled = true;
+  onDKToChange(true);
+
+  // Đặt các giá trị đơn giản ngay
+  document.getElementById('dk_ngaydk').value = toInputDate(r.NgayDangKy);
+  document.getElementById('dk_ngayday').value = toInputDate(r.NgayDay);
+  document.getElementById('dk_mon').value = r.MonHoc || '';
+  document.getElementById('dk_tiet').value = r.TietDay || '';
+  document.getElementById('dk_bai').value = r.TenBai || '';
+  document.getElementById('dk_thietbi').value = r.SuDungThietBi || '';
+  document.getElementById('dk_editRow').value = r._rowIndex;
+
+  // Chờ droplist render xong rồi set giá trị phụ thuộc
+  await new Promise(res => setTimeout(res, 200));
+
+  // GV
+  document.getElementById('dk_gv').value = r.MaGV || '';
+  if (!isAdmin) document.getElementById('dk_gv').disabled = true;
+
+  // Khối: thêm option nếu chưa có rồi set
+  const dkKhoi = document.getElementById('dk_khoi');
+  if (r.Khoi && ![...dkKhoi.options].some(o => o.value === String(r.Khoi))) {
+    dkKhoi.innerHTML += `<option value="${r.Khoi}">Khối ${r.Khoi}</option>`;
+  }
+  dkKhoi.value = r.Khoi || '';
+  onDKKhoiChange();
+
+  await new Promise(res => setTimeout(res, 200));
+
+  // Lớp: thêm option nếu chưa có rồi set
+  const dkLop = document.getElementById('dk_lop');
+  if (r.LopHoc && ![...dkLop.options].some(o => o.value === r.LopHoc)) {
+    dkLop.innerHTML += `<option value="${r.LopHoc}">${r.LopHoc}</option>`;
+  }
+  dkLop.value = r.LopHoc || '';
+
+  // Loại phòng: thêm option nếu chưa có rồi set
+  const dkLoai = document.getElementById('dk_loaiphong');
+  if (r.LoaiPhong && ![...dkLoai.options].some(o => o.value === r.LoaiPhong)) {
+    dkLoai.innerHTML += `<option value="${r.LoaiPhong}">${r.LoaiPhong}</option>`;
+  }
+  dkLoai.value = r.LoaiPhong || '';
+  onDKLoaiPhongChange();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  showToast('✏️ Đang chỉnh sửa: ' + (r.TenGV||'') + ' - Tiết ' + (r.TietDay||''));
+}
+
+// ==================== TAB XẾP PHÒNG ====================
+async function renderXepPhong() {
+  const el = document.getElementById('tab_xepphong');
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">Xếp Phòng</div>
+      <div class="filter-row">
+        <div class="form-group">
+          <label class="form-label">Chọn ngày bắt đầu tuần</label>
+          <input type="date" id="xp_startdate" class="form-control" value="${todayInput()}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cơ sở</label>
+          <select id="xp_coso_filter" class="form-control">
+            <option value="">Tất cả</option>
+            <option value="Cs TĐT">Cs TĐT</option>
+            <option value="Cs BVT">Cs BVT</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="loadXPData()" style="margin-top:22px">🔍 Xem tuần</button>
+      </div>
+    </div>
+    <div id="xpContent"><div class="empty-state"><div class="icon">📅</div>Chọn ngày để xem lịch tuần</div></div>`;
+}
+
+async function loadXPData() {
+  const startDate = document.getElementById('xp_startdate').value;
+  const cosoFilter = document.getElementById('xp_coso_filter').value;
+  if (!startDate) { showToast('Chọn ngày đi bạn!', 'error'); return; }
+
+  const el = document.getElementById('xpContent');
+  el.innerHTML = '<div class="empty-state"><div class="icon">⏳</div>Đang tải...</div>';
+  showLoading('Đang tải lịch tuần...');
+
+  let dkData, csData, phData, xpData;
+  try {
+    [dkData, csData, phData, xpData] = await Promise.all([
+      readDangKySheet(true),
+      readCoSoSheet(true),
+      readPhongSheet(true),
+      readXepPhongSheet(true)
+    ]);
+  } catch(e) {
+    hideLoading();
+    showToast('Lỗi tải dữ liệu: ' + e.message, 'error');
+    el.innerHTML = '<div class="card"><div class="empty-state"><div class="icon">❌</div>Lỗi tải dữ liệu. Thử lại!</div></div>';
+    return;
+  }
+
+  allData.DangKy = dkData || [];
+  allData.CoSo   = csData || [];
+  allData.Phong  = phData || [];
+  allData.XepPhong = xpData || [];
+
+  const weekDates = getWeekRange(startDate);
+  const weekDateStrs = weekDates.map(d => toDisplayDate(d));
+
+  function normDate(s) { return normDateGlobal(s); }
+
+  let records = dkData.filter(r => weekDateStrs.includes(normDate(r.NgayDay)));
+  if (cosoFilter) records = records.filter(r => r.CoSo === cosoFilter);
+
+  records.sort((a,b) => {
+    const da = toInputDate(a.NgayDay), db = toInputDate(b.NgayDay);
+    if (da !== db) return da.localeCompare(db);
+    return parseInt(a.TietDay||0) - parseInt(b.TietDay||0);
+  });
+
+  hideLoading();
+
+  if (!records.length) {
+    const sample = dkData.slice(0,3).map(r => r.NgayDay||'(trống)').join(', ');
+    el.innerHTML = `<div class="card"><div class="empty-state"><div class="icon">📋</div>
+      Không có đăng ký trong tuần này<br>
+      <small style="color:var(--text-muted)">Tuần: ${weekDateStrs.join(', ')}<br>Ngày dạy trong DangKy (3 đầu): ${sample||'(chưa có)'}</small>
+    </div></div>`;
+    return;
+  }
+
+  // Phòng đã bị chiếm: key = CoSo|NgayDay|TietDay|TenPhong -> LopHoc
+  const phongDaBiChiem = {};
+  xpData.forEach(x => {
+    if (!x.PhongDuocXep || !x.PhongDuocXep.trim()) return;
+    const key = [String(x.CoSo||'').trim(), normDateGlobal(x.NgayDay), String(x.TietDay||'').trim(), x.PhongDuocXep.trim()].join('|');
+    phongDaBiChiem[key] = String(x.LopHoc||'').trim();
+  });
+
+  const dayMap = {0:'CN',1:'Thứ Hai',2:'Thứ Ba',3:'Thứ Tư',4:'Thứ Năm',5:'Thứ Sáu',6:'Thứ Bảy'};
+
+  let rows = records.map((r, i) => {
+    const rCoSo = String(r.CoSo||'').trim();
+    const rNgay = normDateGlobal(r.NgayDay);
+    const rTiet = String(r.TietDay||'').trim();
+    const rLop  = String(r.LopHoc||'').trim();
+
+    const xpMatch = xpData.find(x =>
+      String(x.CoSo||'').trim() === rCoSo &&
+      normDateGlobal(x.NgayDay) === rNgay &&
+      String(x.TietDay||'').trim() === rTiet &&
+      String(x.LopHoc||'').trim() === rLop
+    );
+    const phongDaXep = xpMatch ? xpMatch.PhongDuocXep.trim() : '';
+    const xpRowIndex = xpMatch ? xpMatch._rowIndex : '';
+
+    const allPhongs = [...new Set(phData.filter(p => p.CoSo === rCoSo).map(p => p.TenPhong).filter(Boolean))];
+    const availablePhongs = allPhongs.filter(p => {
+      const key = [rCoSo, rNgay, rTiet, p.trim()].join('|');
+      const chiemBoi = phongDaBiChiem[key];
+      return !chiemBoi || chiemBoi === rLop;
+    });
+
+    const ngayInput = toInputDate(r.NgayDay);
+    const thu = new Date(ngayInput + 'T00:00:00').getDay();
+    const dayLabel = dayMap[thu] || '';
+
+    return '<tr>' +
+      '<td><input type="checkbox" class="xp_chk" value="' + i + '"></td>' +
+      '<td><span class="badge badge-blue">' + rCoSo + '</span></td>' +
+      '<td>' + (r.ToBomon||'') + '</td>' +
+      '<td>' + (r.TenGV||'') + '</td>' +
+      '<td>' + dayLabel + '<br><small style="color:var(--text-muted)">' + (r.NgayDay||'') + '</small></td>' +
+      '<td>' + (r.NgayDangKy||'') + '</td>' +
+      '<td>' + (r.MonHoc||'') + '</td>' +
+      '<td>' + (r.Khoi ? 'Khối '+r.Khoi : '') + '</td>' +
+      '<td>' + rLop + '</td>' +
+      '<td>Tiết ' + rTiet + '</td>' +
+      '<td>' + (r.TenBai||'') + '</td>' +
+      '<td>' + (r.LoaiPhong||'') + '</td>' +
+      '<td>' + (r.SuDungThietBi||'') + '</td>' +
+      '<td>' +
+        '<select class="form-control" style="min-width:130px;font-size:0.82rem" id="xp_phong_' + i + '">' +
+          '<option value="">-- Chọn phòng --</option>' +
+          availablePhongs.map(p => '<option value="' + p + '"' + (p===phongDaXep?' selected':'') + '>' + p + '</option>').join('') +
+        '</select>' +
+        (phongDaXep ? '<small class="xp-badge" style="color:#10b981;font-size:0.75rem;display:block;margin-top:2px;font-weight:600">✅ ' + phongDaXep + '</small>' : '') +
+        '<input type="hidden" id="xp_rowindex_' + i + '" value="' + xpRowIndex + '">' +
+        '<input type="hidden" id="xp_orig_' + i + '" data-orig="' + encodeURIComponent(JSON.stringify(r)) + '">' +
+      '</td>' +
+    '</tr>';
+  });
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">📅 Lịch tuần ${weekDateStrs[0]} → ${weekDateStrs[5]} (${records.length} tiết)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th><input type="checkbox" onchange="toggleAllChk('xp_chk',this.checked)"></th>
+            <th>Cơ sở</th><th>Tổ BM</th><th>Giáo viên</th>
+            <th>Ngày dạy</th><th>Ngày ĐK</th><th>Môn học</th>
+            <th>Khối</th><th>Lớp</th><th>Tiết</th>
+            <th>Tên bài</th><th>Loại phòng</th><th>Thiết bị</th>
+            <th>Tên phòng 🔑</th>
+          </tr></thead>
+          <tbody>${rows.join('')}</tbody>
+        </table>
+      </div>
+      <div class="btn-group" style="margin-top:16px">
+        <button class="btn btn-success" onclick="saveXepPhong(${records.length})">💾 Lưu xếp phòng</button>
+      </div>
+    </div>`;
+}
+
+async function saveXepPhong(count) {
+  const btn = document.querySelector('[onclick*="saveXepPhong"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang lưu...'; }
+  const existingXP = await readXepPhongSheet(true);
+  let saved = 0;
+
+  for (let i = 0; i < count; i++) {
+    const sel = document.getElementById('xp_phong_' + i);
+    if (!sel || !sel.value) continue;
+    const phong = sel.value.trim();
+    const origEl = document.getElementById('xp_orig_' + i);
+    if (!origEl) continue;
+    const orig = JSON.parse(decodeURIComponent(origEl.getAttribute('data-orig') || '{}'));
+    const ts = new Date().toLocaleString('vi-VN');
+
+    const keyRecord = [String(orig.CoSo||'').trim(), normDateGlobal(orig.NgayDay), String(orig.TietDay||'').trim(), String(orig.LopHoc||'').trim()].join('|');
+    const existing = existingXP.find(x => {
+      const k = [String(x.CoSo||'').trim(), normDateGlobal(x.NgayDay), String(x.TietDay||'').trim(), String(x.LopHoc||'').trim()].join('|');
+      return k === keyRecord;
+    });
+
+    const row = [orig.CoSo, orig.ToBomon, orig.MaGV, orig.TenGV, orig.NgayDangKy, orig.NgayDay,
+      orig.MonHoc, orig.LopHoc, orig.TietDay, orig.TenBai, orig.LoaiPhong, orig.SuDungThietBi, phong, ts];
+
+    try {
+      if (existing && existing._rowIndex) { await updateRow('XepPhong', existing._rowIndex, row); }
+      else { await appendRow('XepPhong', row); }
+      saved++;
+      const oldBadge = sel.parentElement.querySelector('.xp-badge');
+      if (oldBadge) oldBadge.remove();
+      const badge = document.createElement('small');
+      badge.className = 'xp-badge';
+      badge.style.cssText = 'color:#10b981;font-size:0.75rem;display:block;margin-top:2px;font-weight:600';
+      badge.textContent = '✅ ' + phong;
+      sel.insertAdjacentElement('afterend', badge);
+    } catch(e) { console.error('Lỗi lưu hàng', i, e); }
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '💾 Lưu xếp phòng'; }
+  showToast(saved > 0 ? '✅ Đã lưu ' + saved + ' xếp phòng!' : 'Chưa chọn phòng nào!', saved > 0 ? 'success' : 'error');
+  if (saved > 0) setTimeout(() => loadXPData(), 1500);
+}
+
+// ==================== TAB BÁO CÁO ====================
+async function renderBaoCao() {
+  const el = document.getElementById('tab_baocao');
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">Xuất Báo Cáo</div>
+      <div class="filter-row">
+        <div class="form-group">
+          <label class="form-label">Từ ngày</label>
+          <input type="date" id="bc_from" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Đến ngày</label>
+          <input type="date" id="bc_to" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cơ sở</label>
+          <select id="bc_coso" class="form-control">
+            <option value="">Tất cả</option>
+            <option value="Cs TĐT">Cs TĐT</option>
+            <option value="Cs BVT">Cs BVT</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="loadBaoCao()" style="margin-top:22px">🔍 Xem</button>
+        <button class="btn btn-success" onclick="exportExcel()" style="margin-top:22px">📥 Xuất Excel</button>
+      </div>
+    </div>
+    <div id="bcContent"></div>`;
+}
+
+async function loadBaoCao() {
+  const from = document.getElementById('bc_from').value;
+  const to   = document.getElementById('bc_to').value;
+  const coso = document.getElementById('bc_coso').value;
+  const el   = document.getElementById('bcContent');
+  el.innerHTML = '<div class="empty-state"><div class="icon">⏳</div>Đang tải...</div>';
+  showLoading('Đang tải báo cáo...');
+
+  const xpData = await readXepPhongSheet(true);
+  allData.XepPhong = xpData;
+  hideLoading();
+
+  function ddmmToYYYY(s) {
+    if (!s) return '';
+    if (s.includes('/')) { const [d,m,y] = s.split('/'); return y+'-'+m+'-'+d; }
+    return s;
+  }
+
+  let data = xpData.filter(r => r.PhongDuocXep && r.PhongDuocXep.trim());
+  if (coso) data = data.filter(r => r.CoSo === coso);
+  if (from) data = data.filter(r => ddmmToYYYY(r.NgayDay) >= from);
+  if (to)   data = data.filter(r => ddmmToYYYY(r.NgayDay) <= to);
+
+  data.sort((a,b) => {
+    const da = ddmmToYYYY(a.NgayDay), db = ddmmToYYYY(b.NgayDay);
+    if (da !== db) return da.localeCompare(db);
+    if (a.CoSo !== b.CoSo) return a.CoSo.localeCompare(b.CoSo);
+    return parseInt(a.TietDay||0) - parseInt(b.TietDay||0);
+  });
+
+  allData.BaoCaoFiltered = data;
+
+  if (!data.length) {
+    el.innerHTML = '<div class="card"><div class="empty-state"><div class="icon">📊</div>Không có dữ liệu</div></div>';
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">Kết quả (${data.length} tiết)</div>
+      <div class="bc-table-wrap">
+        <table class="bc-table">
+          <thead><tr>
+            <th>Ngày dạy</th><th>Cơ sở</th><th>Tổ BM</th><th>Giáo viên</th><th>Khối</th><th>Lớp</th><th>Tiết</th><th>Môn học</th><th>Phòng</th><th>Tên bài</th>
+          </tr></thead>
+          <tbody>
+            ${data.map(r=>`<tr>
+              <td>${r.NgayDay||''}</td><td>${r.CoSo||''}</td>
+              <td>${r.ToBomon||''}</td><td>${r.TenGV||''}</td>
+              <td>${r.Khoi ? 'Khối '+r.Khoi : ''}</td>
+              <td>${r.LopHoc||''}</td><td>Tiết ${r.TietDay||''}</td>
+              <td>${r.MonHoc||''}</td><td>${r.PhongDuocXep||''}</td><td>${r.TenBai||''}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function exportExcel() {
+  const data = allData.BaoCaoFiltered;
+  if (!data || !data.length) { showToast('Không có dữ liệu để xuất!', 'error'); return; }
+  const headers = ['Ngày dạy','Cơ sở','Tổ BM','Giáo viên','Khối','Lớp học','Tiết học','Môn học','Phòng','Tên bài'];
+  const rows = data.map(function(r) {
+    return [r.NgayDay||'', r.CoSo||'', r.ToBomon||'', r.TenGV||'',
+      r.Khoi ? 'Khối '+r.Khoi : '',
+      r.LopHoc||'', 'Tiết '+(r.TietDay||''),
+      r.MonHoc||'', r.PhongDuocXep||'', r.TenBai||''];
+  });
+  var BOM = '﻿';
+  var nl = '\n';
+  var csv = BOM + headers.join(',') + nl;
+  rows.forEach(function(row) {
+    csv += row.map(function(v) {
+      return '"' + String(v).replace(/"/g, '""') + '"';
+    }).join(',') + nl;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  var d = new Date().toLocaleDateString('vi-VN').replace(/\//g,'-');
+  a.download = 'BaoCaoTietDay_' + d + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Đã xuất file!', 'success');
+}
+
+// ==================== ENTER KEY ====================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') doLogin();
+});
+</script>
+</body>
+</html>
