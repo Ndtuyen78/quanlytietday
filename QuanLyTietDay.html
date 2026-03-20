@@ -1962,6 +1962,7 @@ function renderDKRows(dateF, gvF, lopF) {
       <td>${r.LoaiPhong||''}</td><td>${r.SuDungThietBi||''}</td>
       <td style="white-space:nowrap">
         <button class="btn btn-secondary btn-sm" onclick="editDK(${data.indexOf(r)})">✏️ Sửa</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSingleDK(${data.indexOf(r)})">🗑️</button>
       </td>
     </tr>`).join('')}
   </table></div>
@@ -1970,11 +1971,10 @@ function renderDKRows(dateF, gvF, lopF) {
   </div>`;
 }
 
-async function loadDKTable() {
+async function loadDKTable(forceRefresh = false) {
   const el = document.getElementById('dkTable');
   if (!el) return;
-  // Dùng cache nếu có, không gọi lại API
-  const data = await readDangKySheet();
+  const data = await readDangKySheet(forceRefresh);
   allData.DangKy = data;
   let filtered = data;
   if (!isAdmin && currentUser) {
@@ -1988,19 +1988,103 @@ async function deleteCheckedDK() {
   const checked = [...document.querySelectorAll('.dk_chk:checked')].map(c => parseInt(c.value));
   if (!checked.length) { showToast('Chọn ít nhất 1 dòng để xóa!', 'error'); return; }
   if (!confirm('Xóa ' + checked.length + ' đăng ký đã chọn?')) return;
+
   const data = allData.DangKy || [];
+
+  // Nếu là GV (không phải admin), kiểm tra xem tiết đã được xếp phòng chưa
+  if (!isAdmin) {
+    // Load XepPhong để kiểm tra
+    showLoading('Đang kiểm tra...');
+    const xpData = await readXepPhongSheet(true);
+    hideLoading();
+
+    const blocked = [];
+    for (const idx of checked) {
+      const r = data[idx];
+      const xpMatch = xpData.find(x =>
+        String(x.CoSo||'').trim() === String(r.CoSo||'').trim() &&
+        normDateGlobal(x.NgayDay) === normDateGlobal(r.NgayDay) &&
+        String(x.TietDay||'').trim() === String(r.TietDay||'').trim() &&
+        String(x.LopHoc||'').trim() === String(r.LopHoc||'').trim() &&
+        x.PhongDuocXep && x.PhongDuocXep.trim()
+      );
+      if (xpMatch) {
+        blocked.push('Tiết ' + r.TietDay + ' - ' + r.LopHoc + ' - ' + r.NgayDay + ' (Phòng: ' + xpMatch.PhongDuocXep + ')');
+      }
+    }
+
+    if (blocked.length > 0) {
+      return;
+    }
+  }
+
   let ok = 0;
   for (const idx of checked) {
     try {
       const r = data[idx];
-      // Xóa bằng cách ghi trống toàn bộ cột
       const emptyRow = Array(15).fill('');
       await updateRow('DangKy', r._rowIndex, emptyRow);
       ok++;
     } catch(e) {}
   }
   showToast('Đã xóa ' + ok + ' đăng ký!', 'success');
-  loadDKTable();
+  _invalidateCache('DangKy');
+  allData.DangKy = null;
+  await loadDKTable(true);
+}
+
+async function deleteSingleDK(idx) {
+  const data = allData.DangKy || [];
+  const r = data[idx];
+  if (!r) return;
+
+  if (!confirm('Xóa đăng ký: Tiết ' + r.TietDay + ' - ' + r.LopHoc + ' - ' + r.NgayDay + '?')) return;
+
+  // Nếu là GV, kiểm tra đã xếp phòng chưa
+  if (!isAdmin) {
+    showLoading('Đang kiểm tra...');
+    let xpData = [];
+    try {
+      xpData = await readXepPhongSheet(true);
+    } catch(e) {
+      // Nếu lỗi đọc XepPhong, bỏ qua kiểm tra, cho xóa luôn
+      xpData = [];
+    }
+    hideLoading();
+
+    const xpMatch = xpData.find(function(x) {
+      return String(x.CoSo||'').trim() === String(r.CoSo||'').trim() &&
+        normDateGlobal(x.NgayDay) === normDateGlobal(r.NgayDay) &&
+        String(x.TietDay||'').trim() === String(r.TietDay||'').trim() &&
+        String(x.LopHoc||'').trim() === String(r.LopHoc||'').trim() &&
+        x.PhongDuocXep && x.PhongDuocXep.trim();
+    });
+
+    if (xpMatch) {
+      showModal(
+        '<div class="modal-title">Không thể xóa</div>' +
+        '<p style="margin-bottom:12px">Tiết này đã được Admin xếp phòng: <b>' + xpMatch.PhongDuocXep + '</b></p>' +
+        '<p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px">Vui lòng liên hệ Admin để hủy xếp phòng trước khi xóa.</p>' +
+        '<div class="btn-group"><button class="btn btn-secondary" onclick="closeModal()">Đóng</button></div>'
+      );
+      return;
+    }
+  }
+
+  // Xóa
+  showLoading('Đang xóa...');
+  try {
+    await updateRow('DangKy', r._rowIndex, Array(15).fill(''));
+    hideLoading();
+    showToast('Đã xóa đăng ký!', 'success');
+    // Xóa cache và reload lại từ server
+    _invalidateCache('DangKy');
+    allData.DangKy = null;
+    await loadDKTable(true);
+  } catch(e) {
+    hideLoading();
+    showToast('Lỗi xóa: ' + e.message, 'error');
+  }
 }
 
 async function editDK(idx) {
@@ -2392,3 +2476,4 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
