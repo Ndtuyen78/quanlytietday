@@ -1095,7 +1095,7 @@ function parseSheetData(raw) {
   if (!raw || !raw.success || !raw.data || raw.data.length < 2) return [];
   const headers = raw.data[0];
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
+    .filter(row => row.some(v => String(v).trim() !== '') && !row.some(v => String(v).trim() === 'DELETED'))
     .map((row, idx) => {
       const obj = { _rowIndex: idx + 2 };
       headers.forEach((h, i) => obj[String(h).trim()] = row[i] ?? '');
@@ -1115,7 +1115,7 @@ async function parseCoSoData(raw) {
   const iKhoi = col(['khoi'], 1);
   const iLop  = headers.findIndex(h => h.includes('lop') && !h.includes('loai'));
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
+    .filter(row => row.some(v => String(v).trim() !== '') && !row.some(v => String(v).trim() === 'DELETED'))
     .map((row, idx) => ({
       _rowIndex: idx + 2,
       CoSo:   String(row[iCoSo] ||'').trim(),
@@ -1136,7 +1136,7 @@ async function parsePhongData(raw) {
   const iLoai  = col(['loai'], 1);
   const iTen   = col(['ten'], 2);
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
+    .filter(row => row.some(v => String(v).trim() !== '') && !row.some(v => String(v).trim() === 'DELETED'))
     .map((row, idx) => ({
       _rowIndex:  idx + 2,
       CoSo:       String(row[iCoSo] ||'').trim(),
@@ -1219,10 +1219,12 @@ async function readDangKySheet(forceRefresh = false) {
   const iTenPhong  = col(['tenphong','ten phong'], 12);
   const iThietBi   = col(['thietbi','thiet bi','sudung'], 13);
 
+  // Track rowIndex thực tế trong sheet (kể cả hàng trống)
   const dkParsed = raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== ''))
-    .map((row, idx) => ({
-      _rowIndex: idx + 2,
+    .map((row, idx) => ({ _actualRow: idx + 2, row }))
+    .filter(({row}) => row.some(v => String(v).trim() !== '') && !row.some(v => String(v).trim() === 'DELETED'))
+    .map(({_actualRow, row}) => ({
+      _rowIndex: _actualRow,
       CoSo:          String(row[iCoSo]    ||'').trim(),
       ToBomon:       String(row[iToBomon] ||'').trim(),
       MaGV:          String(row[iMaGV]    ||'').trim(),
@@ -1238,7 +1240,7 @@ async function readDangKySheet(forceRefresh = false) {
       TenPhong:      String(row[iTenPhong] ||'').trim(),
       SuDungThietBi: String(row[iThietBi] ||'').trim(),
     }));
-  console.log('DangKy parsed sample:', dkParsed.slice(0,2).map(r=>({NgayDay:r.NgayDay,LopHoc:r.LopHoc,TietDay:r.TietDay})));
+  console.log('DangKy parsed sample (rowIndices):', dkParsed.slice(0,3).map(r=>({_rowIndex:r._rowIndex,NgayDay:r.NgayDay,LopHoc:r.LopHoc})));
   return dkParsed;
 }
 
@@ -1632,7 +1634,7 @@ function parseDangKyData(raw) {
         iTietDay=col(['tiet'],9), iTenBai=col(['bai'],10), iLoaiPhong=col(['loaiphong'],11),
         iTenPhong=col(['tenphong'],12), iThietBi=col(['thietbi'],13);
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
+    .filter(row => row.some(v => String(v).trim() !== '') && !row.some(v => String(v).trim() === 'DELETED'))
     .map((row, idx) => ({
       _rowIndex: idx+2,
       CoSo: String(row[iCoSo]||'').trim(), ToBomon: String(row[iToBomon]||'').trim(),
@@ -1661,7 +1663,7 @@ function parseXepPhongData(raw) {
         iTietDay=col(['tiet'],8), iTenBai=col(['bai'],9), iLoaiPhong=col(['loaiphong'],10),
         iThietBi=col(['thietbi','sudung'],11), iPhong=col(['phongduoc','phong'],12);
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
+    .filter(row => row.some(v => String(v).trim() !== '') && !row.some(v => String(v).trim() === 'DELETED'))
     .map((row, idx) => ({
       _rowIndex: idx+2,
       CoSo: String(row[iCoSo]||'').trim(), ToBomon: String(row[iToBomon]||'').trim(),
@@ -2097,7 +2099,10 @@ async function deleteCheckedDK() {
     const r = data[idx];
     if (!r) continue;
     try {
-      await updateRow('DangKy', r._rowIndex, ['DELETED','','','','','','','','','','','','','','']);
+      const delRow = ['DELETED','','','','','','','','','','','','','',''];
+      console.log('Writing DELETED to rowIndex:', r._rowIndex, 'row:', delRow);
+      const delResult = await updateRow('DangKy', r._rowIndex, delRow);
+      console.log('Delete result:', delResult);
       ok++;
     } catch(e) { console.error('Lỗi xóa idx', idx, e); }
   }
@@ -2580,5 +2585,6 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
 
 
