@@ -357,6 +357,47 @@
   .filter-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
   .filter-row .form-group { min-width: 160px; }
 
+  /* DK CARD LIST */
+  .dk-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .dk-card-header {
+    background: var(--primary-light);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .dk-card-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+  }
+  .dk-card-body {
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 16px;
+  }
+  .dk-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+  }
+  .dk-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+  }
+
   /* RESPONSIVE */
   @media (max-width: 600px) {
     .card { padding: 16px; }
@@ -409,7 +450,7 @@
 
 <script>
 // ==================== CONFIG ====================
-const API = 'https://script.google.com/macros/s/AKfycbw39l8El-HMJq690dalL1pxChDylGEz2P8vawrFIm3jiHGMtCjArITke0MBwFDo9PRH/exec';
+const API = 'https://script.google.com/macros/s/AKfycbwIXlKJV2eUIuMqk85ReV6oVuTPCt_0odPfKz8cktoiHJbubFO9988BdZIYPbvU4fMi/exec';
 
 let isAdmin = false;
 let currentUser = null; // {MaGV, HoTen, ToBomon, Email}
@@ -526,9 +567,13 @@ async function batchRead(sheets, forceRefresh = false) {
 }
 
 async function appendRow(sheet, row) {
-  _invalidateCache(sheet); // Xóa cache sau khi thêm
-  const r = await apiCall({ action: 'append', sheet, row: JSON.stringify(row) });
-  return r;
+  _invalidateCache(sheet);
+  return apiCall({ action: 'append', sheet, row: JSON.stringify(row) });
+}
+
+async function deleteRow(sheet, rowIndex) {
+  _invalidateCache(sheet);
+  return apiCall({ action: 'deleteRow', sheet, rowIndex: rowIndex });
 }
 
 async function updateRow(sheet, rowIndex, row) {
@@ -1050,7 +1095,7 @@ function parseSheetData(raw) {
   if (!raw || !raw.success || !raw.data || raw.data.length < 2) return [];
   const headers = raw.data[0];
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== ''))
+    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
     .map((row, idx) => {
       const obj = { _rowIndex: idx + 2 };
       headers.forEach((h, i) => obj[String(h).trim()] = row[i] ?? '');
@@ -1070,7 +1115,7 @@ async function parseCoSoData(raw) {
   const iKhoi = col(['khoi'], 1);
   const iLop  = headers.findIndex(h => h.includes('lop') && !h.includes('loai'));
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== ''))
+    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
     .map((row, idx) => ({
       _rowIndex: idx + 2,
       CoSo:   String(row[iCoSo] ||'').trim(),
@@ -1091,7 +1136,7 @@ async function parsePhongData(raw) {
   const iLoai  = col(['loai'], 1);
   const iTen   = col(['ten'], 2);
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== ''))
+    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
     .map((row, idx) => ({
       _rowIndex:  idx + 2,
       CoSo:       String(row[iCoSo] ||'').trim(),
@@ -1587,7 +1632,7 @@ function parseDangKyData(raw) {
         iTietDay=col(['tiet'],9), iTenBai=col(['bai'],10), iLoaiPhong=col(['loaiphong'],11),
         iTenPhong=col(['tenphong'],12), iThietBi=col(['thietbi'],13);
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== ''))
+    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
     .map((row, idx) => ({
       _rowIndex: idx+2,
       CoSo: String(row[iCoSo]||'').trim(), ToBomon: String(row[iToBomon]||'').trim(),
@@ -1616,7 +1661,7 @@ function parseXepPhongData(raw) {
         iTietDay=col(['tiet'],8), iTenBai=col(['bai'],9), iLoaiPhong=col(['loaiphong'],10),
         iThietBi=col(['thietbi','sudung'],11), iPhong=col(['phongduoc','phong'],12);
   return raw.data.slice(1)
-    .filter(row => row.some(v => String(v).trim() !== ''))
+    .filter(row => row.some(v => String(v).trim() !== '') && String(row[0]||'').trim() !== 'DELETED')
     .map((row, idx) => ({
       _rowIndex: idx+2,
       CoSo: String(row[iCoSo]||'').trim(), ToBomon: String(row[iToBomon]||'').trim(),
@@ -1952,39 +1997,49 @@ function renderDKRows(dateF, gvF, lopF) {
     el.innerHTML = '<div class="empty-state"><div class="icon">🔍</div>Không tìm thấy kết quả</div>';
     return;
   }
-  el.innerHTML = `<div class="table-wrap"><table>
-    <tr>
-      <th><input type="checkbox" id="dk_chkAll" onchange="toggleAllChk('dk_chk',this.checked)"></th>
-      <th>Cơ sở</th><th>GV</th><th>Ngày dạy</th><th>Môn</th><th>Khối</th><th>Lớp</th><th>Tiết</th><th>Bài</th><th>Loại phòng</th><th>Thiết bị</th><th>Thao tác</th>
-    </tr>
-    ${filtered.map((r,i) => `<tr>
-      <td><input type="checkbox" class="dk_chk" value="${data.indexOf(r)}"></td>
-      <td><span class="badge badge-blue">${r.CoSo||''}</span></td>
-      <td>${r.TenGV||''}</td><td>${r.NgayDay||''}</td><td>${r.MonHoc||''}</td>
-      <td>${r.Khoi ? 'Khối '+r.Khoi : ''}</td>
-      <td>${r.LopHoc||''}</td><td>Tiết ${r.TietDay||''}</td><td>${r.TenBai||''}</td>
-      <td>${r.LoaiPhong||''}</td><td>${r.SuDungThietBi||''}</td>
-      <td style="white-space:nowrap">
-        <button class="btn btn-secondary btn-sm" onclick="editDK(${data.indexOf(r)})">✏️ Sửa</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteSingleDK(${data.indexOf(r)})">🗑️</button>
-      </td>
-    </tr>`).join('')}
-  </table></div>
-  <div class="btn-group" style="margin-top:12px">
-    <button class="btn btn-danger btn-sm" onclick="deleteCheckedDK()">🗑️ Xóa đã chọn</button>
-  </div>`;
+
+  // Dùng card list thay vì bảng ngang để hiển thị đẹp trên mobile
+  var rows = filtered.map(function(r) {
+    var idx = data.indexOf(r);
+    return '<div class="dk-card">' +
+      '<div class="dk-card-header">' +
+        '<span class="badge badge-blue">' + (r.CoSo||'') + '</span>' +
+        '<span style="font-weight:600;margin-left:8px">' + (r.NgayDay||'') + '</span>' +
+        '<span style="margin-left:8px;color:var(--text-muted)">Tiết ' + (r.TietDay||'') + '</span>' +
+        '<div class="dk-card-actions">' +
+          '<button class="btn btn-secondary btn-sm" onclick="editDK(' + idx + ')">✏️ Sửa</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteSingleDK(' + idx + ')">🗑️ Xóa</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="dk-card-body">' +
+        '<div class="dk-info"><span class="dk-label">GV</span><span>' + (r.TenGV||'') + '</span></div>' +
+        '<div class="dk-info"><span class="dk-label">Môn</span><span>' + (r.MonHoc||'') + '</span></div>' +
+        '<div class="dk-info"><span class="dk-label">Lớp</span><span>' + (r.Khoi ? 'Khối '+r.Khoi+' - ' : '') + (r.LopHoc||'') + '</span></div>' +
+        '<div class="dk-info"><span class="dk-label">Bài</span><span>' + (r.TenBai||'') + '</span></div>' +
+        '<div class="dk-info"><span class="dk-label">Phòng</span><span>' + (r.LoaiPhong||'--') + '</span></div>' +
+        '<div class="dk-info"><span class="dk-label">Thiết bị</span><span>' + (r.SuDungThietBi||'') + '</span></div>' +
+      '</div>' +
+    '</div>';
+  });
+
+  el.innerHTML = '<div id="dkCardList">' + rows.join('') + '</div>';
 }
 
 async function loadDKTable(forceRefresh = false) {
   const el = document.getElementById('dkTable');
   if (!el) return;
-  const data = await readDangKySheet(forceRefresh);
-  allData.DangKy = data;
-  let filtered = data;
-  if (!isAdmin && currentUser) {
-    filtered = data.filter(d => d.MaGV === currentUser.MaGV);
+  el.innerHTML = '<div class="empty-state"><div class="icon">⏳</div>Đang tải...</div>';
+  // Luôn xóa cache trước khi đọc nếu forceRefresh
+  if (forceRefresh) {
+    _invalidateCache('DangKy');
+    delete allData.DangKy;
   }
-  if (!data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📝</div>Chưa có đăng ký nào</div>'; return; }
+  const data = await readDangKySheet(true); // luôn đọc mới
+  allData.DangKy = data;
+  if (!data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📝</div>Chưa có đăng ký nào</div>';
+    return;
+  }
   renderDKRows('', '', '');
 }
 
@@ -2042,34 +2097,58 @@ async function deleteCheckedDK() {
     const r = data[idx];
     if (!r) continue;
     try {
-      await updateRow('DangKy', r._rowIndex, Array(15).fill(''));
+      await updateRow('DangKy', r._rowIndex, ['DELETED','','','','','','','','','','','','','','']);
       ok++;
     } catch(e) { console.error('Lỗi xóa idx', idx, e); }
   }
-  hideLoading();
+  // Xóa các record đã xóa khỏi allData ngay lập tức
+  const deletedIndices = checked;
+  allData.DangKy = (allData.DangKy || []).filter(function(d, i) {
+    return !deletedIndices.includes(data.indexOf(d));
+  });
   _invalidateCache('DangKy');
-  allData.DangKy = null;
+  hideLoading();
   showToast('Đã xóa ' + ok + ' đăng ký!', 'success');
-  await loadDKTable(true);
+  // Render lại ngay
+  renderDKRows('', '', '');
+  // Reload từ server sau 2 giây
+  setTimeout(function() { loadDKTable(true); }, 2000);
 }
 
 async function deleteSingleDK(idx) {
+  console.log('deleteSingleDK called, idx:', idx);
+  const data = allData.DangKy || [];
+  console.log('DangKy data length:', data.length);
+  const r = data[idx];
+  console.log('Record:', r);
+  
+  if (!r) { 
+    showToast('Không tìm thấy dữ liệu!', 'error'); 
+    return; 
+  }
+
+  // Dùng showModal thay vì confirm để tránh bị block
+  showModal(
+    '<div class="modal-title">Xác nhận xóa</div>' +
+    '<p style="margin-bottom:16px">Xóa đăng ký: <b>Tiết ' + r.TietDay + ' - ' + r.LopHoc + ' - ' + r.NgayDay + '</b>?</p>' +
+    '<div class="btn-group">' +
+      '<button class="btn btn-danger" onclick="confirmDeleteDK(' + idx + ')">🗑️ Xóa</button>' +
+      '<button class="btn btn-secondary" onclick="closeModal()">Hủy</button>' +
+    '</div>'
+  );
+}
+
+async function confirmDeleteDK(idx) {
+  closeModal();
   const data = allData.DangKy || [];
   const r = data[idx];
   if (!r) return;
 
-  if (!confirm('Xóa đăng ký: Tiết ' + r.TietDay + ' - ' + r.LopHoc + ' - ' + r.NgayDay + '?')) return;
-
-  // Nếu là GV, kiểm tra đã xếp phòng chưa
+  // GV: kiểm tra đã xếp phòng chưa
   if (!isAdmin) {
     showLoading('Đang kiểm tra...');
     let xpData = [];
-    try {
-      xpData = await readXepPhongSheet(true);
-    } catch(e) {
-      // Nếu lỗi đọc XepPhong, bỏ qua kiểm tra, cho xóa luôn
-      xpData = [];
-    }
+    try { xpData = await readXepPhongSheet(true); } catch(e) { xpData = []; }
     hideLoading();
 
     const xpMatch = xpData.find(function(x) {
@@ -2091,19 +2170,24 @@ async function deleteSingleDK(idx) {
     }
   }
 
-  // Xóa
   showLoading('Đang xóa...');
   try {
-    await updateRow('DangKy', r._rowIndex, Array(15).fill(''));
+    console.log('Deleting rowIndex:', r._rowIndex);
+    await updateRow('DangKy', r._rowIndex, ['DELETED','','','','','','','','','','','','','','']);
     hideLoading();
-    showToast('Đã xóa đăng ký!', 'success');
-    // Xóa cache và reload lại từ server
+    // Xóa ngay khỏi local data và render lại - không cần chờ server
+    allData.DangKy = (allData.DangKy || []).filter(function(d) {
+      return d._rowIndex !== r._rowIndex;
+    });
+    renderDKRows('', '', '');
+    showToast('Đã xóa!', 'success');
+    // Sync lại từ server sau 1.5 giây
     _invalidateCache('DangKy');
-    allData.DangKy = null;
-    await loadDKTable(true);
+    setTimeout(function() { loadDKTable(true); }, 1500);
   } catch(e) {
     hideLoading();
-    showToast('Lỗi xóa: ' + e.message, 'error');
+    console.error('Delete error:', e);
+    showToast('Lỗi: ' + e.message, 'error');
   }
 }
 
@@ -2496,4 +2580,5 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
 
